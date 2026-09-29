@@ -1,1 +1,544 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>橋本将生 Schedule</title>
+    <style>
+        :root {
+            --primary-pink: #ff4081;
+            --light-pink: #ffe4ec;
+            --pale-pink: #fff0f5;
+            --accent-pink: #e91e63;
+            --text-color: #333333;
+            --gray-border: #f0f0f0;
+            --gray-text: #888888;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--pale-pink);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background-color: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.1);
+        }
+
+        /* ヘッダー */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--accent-pink);
+            cursor: pointer;
+            user-select: none; /* ダブルクリック時の青い選択を防止 */
+        }
+
+        .action-btn {
+            background-color: #fff9fb;
+            border: 1px solid var(--light-pink);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        /* カウントダウンバナー */
+        .countdown-banner {
+            background: linear-gradient(135deg, #ff65a3, #ff4081);
+            color: white;
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 10px rgba(255, 64, 129, 0.2);
+        }
+
+        .countdown-tag {
+            display: inline-block;
+            background-color: rgba(255, 255, 255, 0.3);
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+
+        .countdown-text {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        /* プロフィールカード */
+        .profile-card {
+            background-color: #ffffff;
+            border: 1px solid var(--light-pink);
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .profile-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .profile-avatar {
+            width: 44px;
+            height: 44px;
+            background-color: var(--light-pink);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        .profile-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--accent-pink);
+        }
+
+        .profile-sub {
+            font-size: 11px;
+            color: var(--gray-text);
+        }
+
+        .profile-toggle {
+            background-color: #ffffff;
+            border: 1px solid var(--light-pink);
+            color: var(--accent-pink);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* ナビゲーションタブ */
+        .nav-tabs {
+            display: flex;
+            background-color: var(--light-pink);
+            border-radius: 20px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .nav-tab {
+            flex: 1;
+            text-align: center;
+            padding: 8px 0;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent-pink);
+            border-radius: 16px;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+
+        .nav-tab.active {
+            background-color: #ffffff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* カレンダーコントロール */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .cal-btn {
+            background-color: #ffffff;
+            border: 1px solid var(--light-pink);
+            color: var(--accent-pink);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .current-month {
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--accent-pink);
+        }
+
+        /* 管理者専用パネル（初期は非表示） */
+        .admin-panel {
+            background-color: #fff0f3;
+            border: 1px dashed var(--accent-pink);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .admin-panel.show {
+            display: block;
+        }
+
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .admin-panel h3 {
+            font-size: 12px;
+            color: var(--accent-pink);
+        }
+
+        .admin-logout-btn {
+            background: none;
+            border: none;
+            color: var(--gray-text);
+            font-size: 11px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .admin-form-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .admin-form-group input {
+            padding: 6px 10px;
+            border: 1px solid #ffb6c1;
+            border-radius: 8px;
+            font-size: 12px;
+            outline: none;
+        }
+
+        .add-event-btn {
+            background-color: var(--accent-pink);
+            color: white;
+            border: none;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* カレンダー本体グリッド */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .weekdays {
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent-pink);
+            padding-bottom: 6px;
+        }
+
+        .day-cell {
+            background-color: #ffffff;
+            border: 1px solid var(--gray-border);
+            border-radius: 8px;
+            min-height: 80px;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            position: relative;
+        }
+
+        .day-number {
+            font-size: 11px;
+            color: var(--text-color);
+        }
+
+        /* カレンダー内のイベントバッジ */
+        .event-badge {
+            background-color: var(--accent-pink);
+            color: white;
+            font-size: 9px;
+            padding: 3px 6px;
+            border-radius: 4px;
+            margin-top: 2px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-event {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 10px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .admin-mode .delete-event {
+            display: inline;
+        }
+
+        /* フッター（隠しログインの場所） */
+        .footer {
+            margin-top: 24px;
+            padding-top: 12px;
+            border-top: 1px solid var(--gray-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            color: var(--gray-text);
+        }
+
+        .secret-admin-trigger {
+            color: #dddddd; /* 目立たない極めて薄いグレー */
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .secret-admin-trigger:hover {
+            color: #bbbbbb;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container" id="mainContainer">
+        <!-- ヘッダー -->
+        <div class="header">
+            <!-- タイトルを3回連続クリックしてもログインできます -->
+            <div class="header-title" id="headerTitle">
+                <span>💖 橋本将生 Schedule</span>
+            </div>
+            <div class="header-buttons">
+                <button class="action-btn">🔔 通知</button>
+            </div>
+        </div>
+
+        <!-- カウントダウンバナー -->
+        <div class="countdown-banner">
+            <div class="countdown-tag">⚡ 映画公開カウントダウン</div>
+            <div class="countdown-text">映画『お姉ちゃんの翠くん』公開まで あと 67 日！ (12/4公開)</div>
+        </div>
+
+        <!-- プロフィールカード -->
+        <div class="profile-card">
+            <div class="profile-info">
+                <div class="profile-avatar">💖</div>
+                <div>
+                    <div class="profile-name">橋本将生 (Masaki Hashimoto)</div>
+                    <div class="profile-sub">プロフィール＆関連リンクまとめ</div>
+                </div>
+            </div>
+            <button class="profile-toggle">開く ▼</button>
+        </div>
+
+        <!-- ナビゲーションタブ -->
+        <div class="nav-tabs">
+            <button class="nav-tab active">MAGAZINE</button>
+            <button class="nav-tab">番組/映画</button>
+            <button class="nav-tab">イベント</button>
+            <button class="nav-tab">ココまさき</button>
+        </div>
+
+        <!-- 管理者専用パネル（管理者ログイン時のみ表示） -->
+        <div class="admin-panel" id="adminPanel">
+            <div class="admin-header">
+                <h3>🛠️ 管理者モード (予定の編集)</h3>
+                <button class="admin-logout-btn" onclick="logoutAdmin()">ログアウト</button>
+            </div>
+            <div class="admin-form-group">
+                <input type="number" id="eventDay" placeholder="日付 (例: 1, 15)" style="width: 30%;" min="1" max="31">
+                <input type="text" id="eventTitle" placeholder="予定内容 (例: J Movie Magazine)" style="width: 70%;">
+            </div>
+            <button class="add-event-btn" onclick="addEvent()">予定を追加</button>
+        </div>
+
+        <!-- カレンダー操作 -->
+        <div class="calendar-header">
+            <button class="cal-btn">&lt; 前の月</button>
+            <div class="current-month">2026年10月</div>
+            <div style="display: flex; gap: 4px;">
+                <button class="cal-btn">今月</button>
+                <button class="cal-btn">次の月 &gt;</button>
+            </div>
+        </div>
+
+        <!-- カレンダー表示部分 -->
+        <div class="calendar-grid" id="calendarGrid">
+            <!-- JavaScriptで描画されます -->
+        </div>
+
+        <!-- フッター（最下部） -->
+        <div class="footer">
+            <span>&copy; Masaki Hashimoto Schedule</span>
+            <!-- 非常に薄いグレーでひっそりと配置されたギアマーク -->
+            <span class="secret-admin-trigger" onclick="tryAdminLogin()" title="Admin">⚙</span>
+        </div>
+    </div>
+
+    <script>
+        // サンプル初期データ
+        let events = {
+            1: ["J Movie Mag..."]
+        };
+
+        let isAdmin = false;
+        const ADMIN_PASSWORD = "oshi"; // ← パスワード（合言葉）
+
+        // カレンダーを描画する関数
+        function renderCalendar() {
+            const grid = document.getElementById("calendarGrid");
+            
+            const weekdaysHTML = `
+                <div class="weekdays" style="color: #ff4081;">日</div>
+                <div class="weekdays">月</div>
+                <div class="weekdays">火</div>
+                <div class="weekdays">水</div>
+                <div class="weekdays">木</div>
+                <div class="weekdays">金</div>
+                <div class="weekdays">土</div>
+            `;
+            grid.innerHTML = weekdaysHTML;
+
+            // 空白セル（前月分）
+            for (let i = 27; i <= 30; i++) {
+                grid.innerHTML += `<div class="day-cell" style="opacity: 0.5;"><span class="day-number">${i}</span></div>`;
+            }
+
+            // 10月分 (1日〜31日)
+            for (let day = 1; day <= 31; day++) {
+                let eventHtml = "";
+                if (events[day]) {
+                    events[day].forEach((ev, index) => {
+                        eventHtml += `
+                            <div class="event-badge">
+                                <span>${ev}</span>
+                                <button class="delete-event" onclick="deleteEvent(${day}, ${index})">×</button>
+                            </div>
+                        `;
+                    });
+                }
+
+                grid.innerHTML += `
+                    <div class="day-cell">
+                        <span class="day-number">${day}</span>
+                        ${eventHtml}
+                    </div>
+                `;
+            }
+        }
+
+        // 管理者認証処理
+        function tryAdminLogin() {
+            if (isAdmin) return;
+
+            let pass = prompt("パスワードを入力してください:");
+            if (pass === ADMIN_PASSWORD) {
+                isAdmin = true;
+                document.getElementById("adminPanel").classList.add("show");
+                document.getElementById("mainContainer").classList.add("admin-mode");
+                alert("管理者としてログインしました。");
+                renderCalendar();
+            } else if (pass !== null) {
+                alert("パスワードが違います。");
+            }
+        }
+
+        // ログアウト処理
+        function logoutAdmin() {
+            isAdmin = false;
+            document.getElementById("adminPanel").classList.remove("show");
+            document.getElementById("mainContainer").classList.remove("admin-mode");
+            alert("ログアウトしました。");
+            renderCalendar();
+        }
+
+        // 隠し機能: タイトル3回連続クリックでログイン
+        let clickCount = 0;
+        let clickTimer = null;
+        document.getElementById("headerTitle").addEventListener("click", function() {
+            clickCount++;
+            clearTimeout(clickTimer);
+            if (clickCount >= 3) {
+                clickCount = 0;
+                tryAdminLogin();
+            } else {
+                clickTimer = setTimeout(() => {
+                    clickCount = 0;
+                }, 800); // 0.8秒以内に3回押すと反応
+            }
+        });
+
+        // 予定の追加
+        function addEvent() {
+            const day = document.getElementById("eventDay").value;
+            const title = document.getElementById("eventTitle").value;
+
+            if (!day || !title) {
+                alert("日付と予定の内容を入力してください。");
+                return;
+            }
+
+            if (!events[day]) {
+                events[day] = [];
+            }
+            events[day].push(title);
+
+            document.getElementById("eventDay").value = "";
+            document.getElementById("eventTitle").value = "";
+
+            renderCalendar();
+        }
+
+        // 予定の削除
+        function deleteEvent(day, index) {
+            if (confirm("この予定を削除しますか？")) {
+                events[day].splice(index, 1);
+                if (events[day].length === 0) {
+                    delete events[day];
+                }
+                renderCalendar();
+            }
+        }
+
+        // 初回描画
+        renderCalendar();
+    </script>
+</body>
+</html>
 
