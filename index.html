@@ -37,6 +37,7 @@
             border-radius: 16px;
             padding: 16px;
             box-shadow: 0 4px 12px rgba(255, 64, 129, 0.1);
+            position: relative;
         }
 
         /* ヘッダー */
@@ -54,7 +55,7 @@
             font-weight: bold;
             color: var(--accent-pink);
             cursor: pointer;
-            user-select: none; /* ダブルクリック時の青い選択を防止 */
+            user-select: none;
         }
 
         .action-btn {
@@ -193,7 +194,7 @@
             color: var(--accent-pink);
         }
 
-        /* 管理者専用パネル（初期は非表示） */
+        /* 管理者専用パネル */
         .admin-panel {
             background-color: #fff0f3;
             border: 1px dashed var(--accent-pink);
@@ -230,16 +231,18 @@
 
         .admin-form-group {
             display: flex;
+            flex-direction: column;
             gap: 6px;
             margin-bottom: 8px;
         }
 
-        .admin-form-group input {
+        .admin-form-group input, .admin-form-group textarea {
             padding: 6px 10px;
             border: 1px solid #ffb6c1;
             border-radius: 8px;
             font-size: 12px;
             outline: none;
+            width: 100%;
         }
 
         .add-event-btn {
@@ -278,7 +281,12 @@
             display: flex;
             flex-direction: column;
             gap: 2px;
-            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .day-cell:hover {
+            background-color: var(--pale-pink);
         }
 
         .day-number {
@@ -286,7 +294,6 @@
             color: var(--text-color);
         }
 
-        /* カレンダー内のイベントバッジ */
         .event-badge {
             background-color: var(--accent-pink);
             color: white;
@@ -294,25 +301,122 @@
             padding: 3px 6px;
             border-radius: 4px;
             margin-top: 2px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* ポップアップ（モーダル）画面スタイル */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end; /* 下からポップアップさせる */
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-content {
+            background-color: var(--pale-pink);
+            width: 100%;
+            max-width: 480px;
+            max-height: 80vh;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            padding: 16px;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: var(--accent-pink);
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #ffd1dc;
         }
 
-        .delete-event {
+        .modal-close-btn {
             background: none;
             border: none;
-            color: white;
-            font-size: 10px;
+            font-size: 18px;
             cursor: pointer;
-            display: none;
+            color: var(--text-color);
         }
 
-        .admin-mode .delete-event {
-            display: inline;
+        /* 詳細カード（画像2枚目風） */
+        .detail-card {
+            background-color: #ffffff;
+            border: 1px solid #ffd1dc;
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 6px rgba(255, 64, 129, 0.05);
         }
 
-        /* フッター（隠しログインの場所） */
+        .detail-category {
+            font-size: 10px;
+            color: var(--gray-text);
+            margin-bottom: 4px;
+        }
+
+        .detail-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: var(--text-color);
+            margin-bottom: 6px;
+        }
+
+        .detail-desc {
+            font-size: 12px;
+            color: #555555;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+        }
+
+        .detail-tag {
+            display: inline-block;
+            background-color: var(--light-pink);
+            color: var(--accent-pink);
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .delete-event-btn {
+            background-color: #ffcccc;
+            border: none;
+            color: #d9534f;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            float: right;
+        }
+
+        /* フッター */
         .footer {
             margin-top: 24px;
             padding-top: 12px;
@@ -325,22 +429,16 @@
         }
 
         .secret-admin-trigger {
-            color: #dddddd; /* 目立たない極めて薄いグレー */
+            color: #dddddd;
             cursor: pointer;
             user-select: none;
-        }
-
-        .secret-admin-trigger:hover {
-            color: #bbbbbb;
         }
     </style>
 </head>
 <body>
 
     <div class="container" id="mainContainer">
-        <!-- ヘッダー -->
         <div class="header">
-            <!-- タイトルを3回連続クリックしてもログインできます -->
             <div class="header-title" id="headerTitle">
                 <span>💖 橋本将生 Schedule</span>
             </div>
@@ -349,13 +447,11 @@
             </div>
         </div>
 
-        <!-- カウントダウンバナー -->
         <div class="countdown-banner">
             <div class="countdown-tag">⚡ 映画公開カウントダウン</div>
             <div class="countdown-text">映画『お姉ちゃんの翠くん』公開まで あと 67 日！ (12/4公開)</div>
         </div>
 
-        <!-- プロフィールカード -->
         <div class="profile-card">
             <div class="profile-info">
                 <div class="profile-avatar">💖</div>
@@ -367,7 +463,6 @@
             <button class="profile-toggle">開く ▼</button>
         </div>
 
-        <!-- ナビゲーションタブ -->
         <div class="nav-tabs">
             <button class="nav-tab active">MAGAZINE</button>
             <button class="nav-tab">番組/映画</button>
@@ -375,20 +470,21 @@
             <button class="nav-tab">ココまさき</button>
         </div>
 
-        <!-- 管理者専用パネル（管理者ログイン時のみ表示） -->
+        <!-- 管理者専用パネル -->
         <div class="admin-panel" id="adminPanel">
             <div class="admin-header">
-                <h3>🛠️ 管理者モード (予定の編集)</h3>
+                <h3>🛠️ 管理者モード (詳細付き予定の追加)</h3>
                 <button class="admin-logout-btn" onclick="logoutAdmin()">ログアウト</button>
             </div>
             <div class="admin-form-group">
-                <input type="number" id="eventDay" placeholder="日付 (例: 1, 15)" style="width: 30%;" min="1" max="31">
-                <input type="text" id="eventTitle" placeholder="予定内容 (例: J Movie Magazine)" style="width: 70%;">
+                <input type="number" id="eventDay" placeholder="日付 (例: 1)" min="1" max="31">
+                <input type="text" id="eventCategory" placeholder="カテゴリ (例: 終日 雑誌)">
+                <input type="text" id="eventTitle" placeholder="タイトル (例: 日本映画navi vol.125)">
+                <textarea id="eventDesc" placeholder="詳細説明 (例: 【現場・製作・イベントリポート】\n橋本将生\n映画「お姉ちゃんの翠くん」)" rows="3"></textarea>
             </div>
-            <button class="add-event-btn" onclick="addEvent()">予定を追加</button>
+            <button class="add-event-btn" onclick="addEvent()">詳細付きの予定を追加</button>
         </div>
 
-        <!-- カレンダー操作 -->
         <div class="calendar-header">
             <button class="cal-btn">&lt; 前の月</button>
             <div class="current-month">2026年10月</div>
@@ -398,32 +494,49 @@
             </div>
         </div>
 
-        <!-- カレンダー表示部分 -->
-        <div class="calendar-grid" id="calendarGrid">
-            <!-- JavaScriptで描画されます -->
-        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
 
-        <!-- フッター（最下部） -->
         <div class="footer">
             <span>&copy; Masaki Hashimoto Schedule</span>
-            <!-- 非常に薄いグレーでひっそりと配置されたギアマーク -->
             <span class="secret-admin-trigger" onclick="tryAdminLogin()" title="Admin">⚙</span>
         </div>
     </div>
 
+    <!-- ポップアップ詳細モーダル -->
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
+        <div class="modal-content" id="modalContent">
+            <div class="modal-header">
+                <span id="modalDateTitle">2026年10月1日(木)</span>
+                <button class="modal-close-btn" onclick="closeModalDirect()">×</button>
+            </div>
+            <div id="modalBody">
+                <!-- 詳細カードがここに挿入されます -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        // サンプル初期データ
+        // 初期サンプルデータ（詳細対応）
         let events = {
-            1: ["J Movie Mag..."]
+            1: [
+                {
+                    category: "終日 雑誌",
+                    title: "日本映画navi vol.125",
+                    desc: "【現場・製作・イベントリポート】\n橋本将生\n映画「お姉ちゃんの翠くん」"
+                },
+                {
+                    category: "終日 雑誌",
+                    title: "J Movie Magazine Vol.135",
+                    desc: "【新作現場レポート】\n橋本将生 『お姉ちゃんの翠くん』"
+                }
+            ]
         };
 
         let isAdmin = false;
-        const ADMIN_PASSWORD = "oshi"; // ← パスワード（合言葉）
+        const ADMIN_PASSWORD = "oshi";
 
-        // カレンダーを描画する関数
         function renderCalendar() {
             const grid = document.getElementById("calendarGrid");
-            
             const weekdaysHTML = `
                 <div class="weekdays" style="color: #ff4081;">日</div>
                 <div class="weekdays">月</div>
@@ -435,27 +548,20 @@
             `;
             grid.innerHTML = weekdaysHTML;
 
-            // 空白セル（前月分）
             for (let i = 27; i <= 30; i++) {
                 grid.innerHTML += `<div class="day-cell" style="opacity: 0.5;"><span class="day-number">${i}</span></div>`;
             }
 
-            // 10月分 (1日〜31日)
             for (let day = 1; day <= 31; day++) {
                 let eventHtml = "";
                 if (events[day]) {
-                    events[day].forEach((ev, index) => {
-                        eventHtml += `
-                            <div class="event-badge">
-                                <span>${ev}</span>
-                                <button class="delete-event" onclick="deleteEvent(${day}, ${index})">×</button>
-                            </div>
-                        `;
+                    events[day].forEach((ev) => {
+                        eventHtml += `<div class="event-badge">${ev.title}</div>`;
                     });
                 }
 
                 grid.innerHTML += `
-                    <div class="day-cell">
+                    <div class="day-cell" onclick="openDayModal(${day})">
                         <span class="day-number">${day}</span>
                         ${eventHtml}
                     </div>
@@ -463,15 +569,52 @@
             }
         }
 
-        // 管理者認証処理
+        // 日付をタップしたときの処理
+        function openDayModal(day) {
+            const overlay = document.getElementById("modalOverlay");
+            const dateTitle = document.getElementById("modalDateTitle");
+            const modalBody = document.getElementById("modalBody");
+
+            dateTitle.innerText = `2026年10月${day}日`;
+            modalBody.innerHTML = "";
+
+            if (!events[day] || events[day].length === 0) {
+                modalBody.innerHTML = `<div style="text-align: center; color: var(--gray-text); padding: 20px; font-size: 13px;">この日の予定はありません</div>`;
+            } else {
+                events[day].forEach((ev, index) => {
+                    let deleteBtnHtml = isAdmin ? `<button class="delete-event-btn" onclick="deleteEvent(${day}, ${index}, event)">削除</button>` : "";
+                    
+                    modalBody.innerHTML += `
+                        <div class="detail-card">
+                            ${deleteBtnHtml}
+                            <div class="detail-category">${ev.category || "終日"}</div>
+                            <div class="detail-title">${ev.title}</div>
+                            <div class="detail-desc">${ev.desc || ""}</div>
+                            <span class="detail-tag">橋本</span>
+                        </div>
+                    `;
+                });
+            }
+
+            overlay.classList.add("show");
+        }
+
+        function closeModal(e) {
+            if (e.target.id === "modalOverlay") {
+                document.getElementById("modalOverlay").classList.remove("show");
+            }
+        }
+
+        function closeModalDirect() {
+            document.getElementById("modalOverlay").classList.remove("show");
+        }
+
         function tryAdminLogin() {
             if (isAdmin) return;
-
             let pass = prompt("パスワードを入力してください:");
             if (pass === ADMIN_PASSWORD) {
                 isAdmin = true;
                 document.getElementById("adminPanel").classList.add("show");
-                document.getElementById("mainContainer").classList.add("admin-mode");
                 alert("管理者としてログインしました。");
                 renderCalendar();
             } else if (pass !== null) {
@@ -479,16 +622,13 @@
             }
         }
 
-        // ログアウト処理
         function logoutAdmin() {
             isAdmin = false;
             document.getElementById("adminPanel").classList.remove("show");
-            document.getElementById("mainContainer").classList.remove("admin-mode");
             alert("ログアウトしました。");
             renderCalendar();
         }
 
-        // 隠し機能: タイトル3回連続クリックでログイン
         let clickCount = 0;
         let clickTimer = null;
         document.getElementById("headerTitle").addEventListener("click", function() {
@@ -498,47 +638,49 @@
                 clickCount = 0;
                 tryAdminLogin();
             } else {
-                clickTimer = setTimeout(() => {
-                    clickCount = 0;
-                }, 800); // 0.8秒以内に3回押すと反応
+                clickTimer = setTimeout(() => { clickCount = 0; }, 800);
             }
         });
 
-        // 予定の追加
         function addEvent() {
             const day = document.getElementById("eventDay").value;
+            const category = document.getElementById("eventCategory").value;
             const title = document.getElementById("eventTitle").value;
+            const desc = document.getElementById("eventDesc").value;
 
             if (!day || !title) {
-                alert("日付と予定の内容を入力してください。");
+                alert("日付とタイトルは必須です。");
                 return;
             }
 
             if (!events[day]) {
                 events[day] = [];
             }
-            events[day].push(title);
+            events[day].push({ category, title, desc });
 
             document.getElementById("eventDay").value = "";
+            document.getElementById("eventCategory").value = "";
             document.getElementById("eventTitle").value = "";
+            document.getElementById("eventDesc").value = "";
 
             renderCalendar();
+            document.getElementById("modalOverlay").classList.remove("show");
+            alert("予定を追加しました！");
         }
 
-        // 予定の削除
-        function deleteEvent(day, index) {
+        function deleteEvent(day, index, e) {
+            e.stopPropagation();
             if (confirm("この予定を削除しますか？")) {
                 events[day].splice(index, 1);
                 if (events[day].length === 0) {
                     delete events[day];
                 }
                 renderCalendar();
+                document.getElementById("modalOverlay").classList.remove("show");
             }
         }
 
-        // 初回描画
         renderCalendar();
     </script>
 </body>
 </html>
-
