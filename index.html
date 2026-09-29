@@ -432,6 +432,7 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
+  <!-- タブは従来どおりの4つ -->
   <div class="type-tabs" id="type-tabs-container">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
@@ -473,7 +474,6 @@
         <option value="PROGRAM">番組/映画</option>
         <option value="EVENT">イベント</option>
         <option value="MASAKI">ココまさき</option>
-        <option value="ANNIVERSARY">記念日/誕生日</option>
       </select>
     </div>
     <div class="form-group">
@@ -998,8 +998,8 @@
   function updateFormVisibilityBytype() {
     const typeSelect = document.getElementById("input-type");
     const targetType = typeSelect ? typeSelect.value : currentMainType;
-    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
-    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
+    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
+    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
   }
 
   function updateStatusFilterPills() {
@@ -1007,13 +1007,12 @@
     container.innerHTML = "";
     let statuses = ["すべて"];
     if (currentMainType === "MAGAZINE") {
-      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
+      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売", "記念日", "誕生日");
     } else if (currentMainType === "PROGRAM") {
-      statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
+      statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー", "記念日", "誕生日");
     } else if (currentMainType === "EVENT") {
-      statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
+      statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日");
     } else if (currentMainType === "MASAKI") {
-      // ココまさきタブからは「記念日」「誕生日」の選択肢を除外
       statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他");
     }
     
@@ -1034,17 +1033,16 @@
     
     statusContainer.innerHTML = "";
     let options = [];
+    
+    // ココまさき以外（MAGAZINE, PROGRAM, EVENT）のステータスに「記念日」「誕生日」を含める
     if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売"];
+      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "記念日", "誕生日"];
     } else if (targetType === "PROGRAM") {
-      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
+      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー", "記念日", "誕生日"];
     } else if (targetType === "EVENT") {
-      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
+      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日"];
     } else if (targetType === "MASAKI") {
-      // ココまさきカテゴリの登録フォームからは「記念日」「誕生日」を除外
       options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
-    } else if (targetType === "ANNIVERSARY") {
-      options = ["記念日", "誕生日", "その他"];
     }
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
@@ -1423,7 +1421,7 @@
         let dStr = datesToRegister[idx];
         let newItem = {
           type, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
-          reservations: (type === "ANNIVERSARY" || type === "MASAKI") ? [] : JSON.parse(JSON.stringify(defaultReservations))
+          reservations: (type === "MASAKI") ? [] : JSON.parse(JSON.stringify(defaultReservations))
         };
         if (window.firebaseSaveItem) {
           let newId = await window.firebaseSaveItem(newItem, false);
@@ -1442,12 +1440,7 @@
 
   function filterItems() {
     return itemsData.filter(item => {
-      // 「ココまさき」タブでは誕生日・記念日（ANNIVERSARY）を含めない
-      if (currentMainType === "MASAKI") {
-        if (item.type !== "MASAKI") return false;
-      } else {
-        if (item.type !== currentMainType) return false;
-      }
+      if (item.type !== currentMainType) return false;
 
       if (!currentStatusFilters.includes("すべて")) {
         let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
