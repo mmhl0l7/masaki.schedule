@@ -467,15 +467,19 @@
       <label>内容詳細（省略可）</label>
       <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
     </div>
+    
+    <!-- ▼ カテゴリを複数選択（チェックボックス）に変更 ▼ -->
     <div class="form-group">
-      <label>カテゴリ</label>
-      <select id="input-type" onchange="onFormTypeChange()">
-        <option value="MAGAZINE">MAGAZINE</option>
-        <option value="PROGRAM">番組/映画</option>
-        <option value="EVENT">イベント</option>
-        <option value="MASAKI">ココまさき</option>
-      </select>
+      <label>カテゴリ（複数選択可）</label>
+      <div id="input-type-container" class="checkbox-row-container">
+        <label><input type="checkbox" name="form-type-checkbox" value="MAGAZINE" onchange="onFormTypeChange()">MAGAZINE</label>
+        <label><input type="checkbox" name="form-type-checkbox" value="PROGRAM" onchange="onFormTypeChange()">番組/映画</label>
+        <label><input type="checkbox" name="form-type-checkbox" value="EVENT" onchange="onFormTypeChange()">イベント</label>
+        <label><input type="checkbox" name="form-type-checkbox" value="MASAKI" onchange="onFormTypeChange()">ココまさき</label>
+      </div>
     </div>
+    <!-- ▲ここまで▲ -->
+
     <div class="form-group">
       <label>ステータス（複数選択可）</label>
       <div id="input-status-container" class="checkbox-row-container"></div>
@@ -585,7 +589,14 @@
   onSnapshot(query(collection(db, "schedules"), orderBy("date", "asc")), (snapshot) => {
     itemsData = [];
     snapshot.forEach((docSnap) => {
-      itemsData.push({ id: docSnap.id, ...docSnap.data() });
+      let data = docSnap.id ? { id: docSnap.id, ...docSnap.data() } : docSnap.data();
+      // 既存データの互換性保持（旧型式の単一 string の type を配列に変換）
+      if (typeof data.type === "string") {
+        data.type = [data.type];
+      } else if (!Array.isArray(data.type)) {
+        data.type = ["MAGAZINE"];
+      }
+      itemsData.push(data);
     });
     render();
   });
@@ -812,10 +823,11 @@
       return;
     }
 
-    switchMainType(item.type);
+    let primaryType = Array.isArray(item.type) && item.type.length > 0 ? item.type[0] : "MAGAZINE";
+    switchMainType(primaryType);
 
     setTimeout(() => {
-      if (item.type !== "MASAKI") {
+      if (primaryType !== "MASAKI") {
         switchView('list');
       }
 
@@ -845,6 +857,7 @@
     applyAdminLoginStateUI();
     renderProfileCard();
     updateStatusFilterPills();
+    updateFormTypeOptions();
     updateFormStatusOptions();
     updateFormVisibilityBytype();
     updateTodayTopic();
@@ -983,7 +996,7 @@
 
     updateStatusFilterPills();
     if (!document.getElementById("edit-item-id").value) {
-      document.getElementById("input-type").value = type;
+      updateFormTypeOptions([type]);
       updateFormStatusOptions();
       updateFormVisibilityBytype();
     }
@@ -995,11 +1008,46 @@
     updateFormVisibilityBytype();
   }
 
+  function updateFormTypeOptions(selectedTypes = [currentMainType]) {
+    const container = document.getElementById("input-type-container");
+    if (!container) return;
+    container.innerHTML = "";
+
+    const types = [
+      { val: "MAGAZINE", label: "MAGAZINE" },
+      { val: "PROGRAM", label: "番組/映画" },
+      { val: "EVENT", label: "イベント" },
+      { val: "MASAKI", label: "ココまさき" }
+    ];
+
+    let selectedArr = Array.isArray(selectedTypes) ? selectedTypes : [selectedTypes];
+
+    types.forEach(t => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "form-type-checkbox";
+      checkbox.value = t.val;
+      checkbox.onchange = onFormTypeChange;
+      if (selectedArr.includes(t.val)) checkbox.checked = true;
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(t.label));
+      container.appendChild(label);
+    });
+  }
+
   function updateFormVisibilityBytype() {
-    const typeSelect = document.getElementById("input-type");
-    const targetType = typeSelect ? typeSelect.value : currentMainType;
-    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
-    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
+    const checkedTypes = Array.from(document.querySelectorAll('input[name="form-type-checkbox"]:checked')).map(cb => cb.value);
+    // 選択されているカテゴリに MAGAZINE や MASAKI が含まれるかどうかで時間・終了日の表示を切り替え
+    const isOnlyMasakiOrMagazine = checkedTypes.length > 0 && checkedTypes.every(t => t === "MAGAZINE" || t === "MASAKI");
+    
+    // 時間・終了日を隠す条件：もし全てがMAGAZINEかMASAKIなら隠す（あるいはどれか含まれる場合はお好みで。ここでは従来通り判定）
+    let hasMagazineOrMasaki = checkedTypes.includes("MAGAZINE") || checkedTypes.includes("MASAKI");
+    let hasProgramOrEvent = checkedTypes.includes("PROGRAM") || checkedTypes.includes("EVENT");
+
+    document.getElementById("group-time").style.display = hasProgramOrEvent ? "block" : "none";
+    document.getElementById("group-end-date").style.display = hasProgramOrEvent ? "block" : "none";
   }
 
   function updateStatusFilterPills() {
@@ -1026,15 +1074,14 @@
   }
 
   function updateFormStatusOptions(selectedStatuses = []) {
-    const typeSelect = document.getElementById("input-type");
-    const targetType = typeSelect ? typeSelect.value : currentMainType;
+    const checkedTypes = Array.from(document.querySelectorAll('input[name="form-type-checkbox"]:checked')).map(cb => cb.value);
+    const targetType = checkedTypes.length > 0 ? checkedTypes[0] : currentMainType;
     const statusContainer = document.getElementById("input-status-container");
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
     let options = [];
     
-    // ココまさき以外（MAGAZINE, PROGRAM, EVENT）のステータスに「記念日」「誕生日」を含める
     if (targetType === "MAGAZINE") {
       options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "記念日", "誕生日"];
     } else if (targetType === "PROGRAM") {
@@ -1226,6 +1273,7 @@
     document.getElementById("input-title").value = "";
     document.getElementById("input-desc").value = "";
     document.getElementById("input-repeat").value = "none";
+    updateFormTypeOptions([currentMainType]);
     updateFormStatusOptions();
     updateFormVisibilityBytype();
   }
@@ -1365,13 +1413,14 @@
   async function saveItemData() {
     const editId = document.getElementById("edit-item-id").value;
     const date = document.getElementById("input-date").value;
-    const type = document.getElementById("input-type").value;
+    const types = Array.from(document.querySelectorAll('input[name="form-type-checkbox"]:checked')).map(cb => cb.value);
     const title = document.getElementById("input-title").value;
     const desc = document.getElementById("input-desc").value;
     const repeat = document.getElementById("input-repeat").value;
     const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
 
     if (!date || !title) { alert("日付とタイトルを入力してください"); return; }
+    if (types.length === 0) { alert("カテゴリを1つ以上選択してください"); return; }
     if (status.length === 0) { alert("ステータスを1つ以上選択してください"); return; }
 
     const parsedLinks = parseLinks(document.getElementById("input-links").value);
@@ -1379,7 +1428,7 @@
     if (editId) {
       const item = itemsData.find(i => String(i.id) === String(editId));
       if (item) {
-        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
+        item.date = date; item.title = title; item.desc = desc; item.type = types; item.status = status; item.links = parsedLinks;
         if (window.firebaseSaveItem) await window.firebaseSaveItem(item, true);
       }
       alert("更新しました！");
@@ -1420,8 +1469,8 @@
       for (let idx = 0; idx < datesToRegister.length; idx++) {
         let dStr = datesToRegister[idx];
         let newItem = {
-          type, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
-          reservations: (type === "MASAKI") ? [] : JSON.parse(JSON.stringify(defaultReservations))
+          type: types, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+          reservations: types.includes("MASAKI") && types.length === 1 ? [] : JSON.parse(JSON.stringify(defaultReservations))
         };
         if (window.firebaseSaveItem) {
           let newId = await window.firebaseSaveItem(newItem, false);
@@ -1440,7 +1489,9 @@
 
   function filterItems() {
     return itemsData.filter(item => {
-      if (item.type !== currentMainType) return false;
+      let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
+      // 現在選択されているメインタブ（currentMainType）が含まれているかを判定
+      if (!itemTypes.includes(currentMainType)) return false;
 
       if (!currentStatusFilters.includes("すべて")) {
         let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
@@ -1469,8 +1520,10 @@
   function createCardHtml(item) {
     let purchaseHtml = "";
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+    let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
 
-    if (item.type === "MAGAZINE") {
+    // MAGAZINE カテゴリが含まれている場合に管理ステータスボタンを表示
+    if (itemTypes.includes("MAGAZINE")) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
@@ -1516,7 +1569,9 @@
     document.getElementById("input-date").value = item.date;
     document.getElementById("input-title").value = item.title;
     document.getElementById("input-desc").value = item.desc || "";
-    document.getElementById("input-type").value = item.type;
+    
+    let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
+    updateFormTypeOptions(itemTypes);
     updateFormStatusOptions(item.status);
     updateFormVisibilityBytype();
 
