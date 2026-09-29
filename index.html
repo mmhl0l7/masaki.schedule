@@ -1507,7 +1507,6 @@
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
     let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
 
-    // 【修正】ステータスに「誕生日」または「記念日」が含まれている場合は管理ステータスボタンを表示しない
     const isBirthdayOrAnniversary = itemStatuses.includes("誕生日") || itemStatuses.includes("記念日");
 
     if ((itemTypes.includes("MAGAZINE") || itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) && !isBirthdayOrAnniversary) {
