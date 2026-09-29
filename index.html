@@ -1013,7 +1013,8 @@
     } else if (currentMainType === "EVENT") {
       statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
     } else if (currentMainType === "MASAKI") {
-      statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "記念日", "誕生日", "その他");
+      // ココまさきタブからは「記念日」「誕生日」の選択肢を除外
+      statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他");
     }
     
     statuses.forEach(st => {
@@ -1040,7 +1041,8 @@
     } else if (targetType === "EVENT") {
       options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
     } else if (targetType === "MASAKI") {
-      options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "記念日", "誕生日", "その他"];
+      // ココまさきカテゴリの登録フォームからは「記念日」「誕生日」を除外
+      options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
     } else if (targetType === "ANNIVERSARY") {
       options = ["記念日", "誕生日", "その他"];
     }
@@ -1440,9 +1442,9 @@
 
   function filterItems() {
     return itemsData.filter(item => {
-      // 記念日/誕生日タブを廃止し「ココまさき(MASAKI)」へ統合（またはANNIVERSARYデータもMASAKIに含めて表示）
+      // 「ココまさき」タブでは誕生日・記念日（ANNIVERSARY）を含めない
       if (currentMainType === "MASAKI") {
-        if (item.type !== "MASAKI" && item.type !== "ANNIVERSARY") return false;
+        if (item.type !== "MASAKI") return false;
       } else {
         if (item.type !== currentMainType) return false;
       }
@@ -1475,7 +1477,6 @@
     let purchaseHtml = "";
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
 
-    // マガジン以外、かつ記念日/誕生日以外の場合に購入・管理ステータスを表示
     if (item.type === "MAGAZINE") {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
