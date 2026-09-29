@@ -124,7 +124,7 @@
     }
     .notification-dot.show { display: inline-block; }
 
-    .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; gap: 2px; }
+    .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; gap: 2px; overflow-x: auto; }
     .type-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; white-space: nowrap; }
     .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
@@ -377,9 +377,8 @@
     .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
     .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
 
-    /* コピーライト風の隠しログインエリア */
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
-    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; }
+    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; -webkit-touch-callout: none; user-select: none; }
     .admin-footer-btn:hover { opacity: 1; }
     .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
   </style>
@@ -433,13 +432,12 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
-  <!-- タブ領域（管理者ログイン時のみ「記念日/誕生日」タブが出現） -->
   <div class="type-tabs" id="type-tabs-container">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
     <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
     <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
-    <!-- 管理者専用タブはJSで動的に追加されます -->
+    <button class="type-tab" id="tab-anniversary" onclick="switchMainType('ANNIVERSARY')">記念日/誕生日</button>
   </div>
 
   <div class="filter-section">
@@ -476,12 +474,21 @@
         <option value="PROGRAM">番組/映画</option>
         <option value="EVENT">イベント</option>
         <option value="MASAKI">ココまさき</option>
-        <!-- 管理者の場合のみ「記念日/誕生日」も選択肢に出す -->
+        <option value="ANNIVERSARY">記念日/誕生日</option>
       </select>
     </div>
     <div class="form-group">
       <label>ステータス（複数選択可）</label>
       <div id="input-status-container" class="checkbox-row-container"></div>
+    </div>
+    <div class="form-group" id="group-repeat">
+      <label>繰り返し設定</label>
+      <select id="input-repeat">
+        <option value="none">なし（1回のみ）</option>
+        <option value="weekly">毎週 (半年分作成)</option>
+        <option value="monthly">毎月 (1年分作成)</option>
+        <option value="yearly">毎年 (3年分作成)</option>
+      </select>
     </div>
     <div class="form-group">
       <label>関連リンク</label><input type="text" id="input-links" placeholder="Amazon:https://...">
@@ -493,8 +500,7 @@
   <div id="content-area"></div>
 
   <div class="footer-admin-area">
-    <!-- 3回連続タップ（隠しコマンド）でログイン判定を行う -->
-    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="handleSecretAdminTap()">© Masaki Schedule</button>
+    <button class="admin-footer-btn" id="admin-toggle-btn">© Masaki Schedule</button>
   </div>
 </div>
 
@@ -568,10 +574,6 @@
   
   let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
 
-  // 隠しコマンド（3回連続タップ用）の変数
-  let secretTapCount = 0;
-  let secretTapTimer = null;
-
   let activeManageItemId = null;
   let activeCalendarDateStr = null;
   let activeCalendarEvents = null;
@@ -637,9 +639,9 @@
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       },
       { 
-        id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル（管理者専用）", desc: "この項目は管理者ログイン中のみ表示されます。", status: ["記念日"], member: "橋本将生", 
+        id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル", desc: "記念日や誕生日の予定です。", status: ["記念日"], member: "橋本将生", 
         links: [], 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
+        reservations: []
       }
     ];
     saveItemsToStorage();
@@ -745,7 +747,7 @@
     switchMainType(item.type);
 
     setTimeout(() => {
-      if (item.type !== "MASAKI") {
+      if (item.type !== "MASAKI" && item.type !== "ANNIVERSARY") {
         switchView('list');
       }
 
@@ -886,47 +888,18 @@
     alert("プロフィールを更新しました！");
   }
 
-  // タブの描画・切り替え（管理者ログイン時は「記念日/誕生日」タブも表示）
-  function renderTypeTabs() {
-    const tabsContainer = document.getElementById("type-tabs-container");
-    tabsContainer.innerHTML = `
-      <button class="type-tab ${currentMainType === 'MAGAZINE' ? 'active' : ''}" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
-      <button class="type-tab ${currentMainType === 'PROGRAM' ? 'active' : ''}" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
-      <button class="type-tab ${currentMainType === 'EVENT' ? 'active' : ''}" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
-      <button class="type-tab ${currentMainType === 'MASAKI' ? 'active' : ''}" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
-    `;
-
-    if (isAdminLoggedIn) {
-      let annivTab = document.createElement("button");
-      annivTab.className = `type-tab ${currentMainType === 'ANNIVERSARY' ? 'active' : ''}`;
-      annivTab.id = "tab-anniversary";
-      annivTab.textContent = "記念日/誕生日";
-      annivTab.onclick = () => switchMainType('ANNIVERSARY');
-      tabsContainer.appendChild(annivTab);
-    }
-  }
-
-  function updateFormSelectOptions() {
-    const select = document.getElementById("input-type");
-    if (!select) return;
-    
-    let optionsHtml = `
-      <option value="MAGAZINE">MAGAZINE</option>
-      <option value="PROGRAM">番組/映画</option>
-      <option value="EVENT">イベント</option>
-      <option value="MASAKI">ココまさき</option>
-    `;
-    if (isAdminLoggedIn) {
-      optionsHtml += `<option value="ANNIVERSARY">記念日/誕生日</option>`;
-    }
-    select.innerHTML = optionsHtml;
-    select.value = currentMainType;
-  }
-
   function switchMainType(type) {
     currentMainType = type;
     currentStatusFilters = ["すべて"];
-    renderTypeTabs();
+    
+    document.querySelectorAll(".type-tab").forEach(tab => {
+      tab.classList.remove("active");
+    });
+    if (type === "MAGAZINE") document.getElementById("tab-magazine").classList.add("active");
+    if (type === "PROGRAM") document.getElementById("tab-program").classList.add("active");
+    if (type === "EVENT") document.getElementById("tab-event").classList.add("active");
+    if (type === "MASAKI") document.getElementById("tab-masaki").classList.add("active");
+    if (type === "ANNIVERSARY") document.getElementById("tab-anniversary").classList.add("active");
     
     const viewBar = document.getElementById("view-mode-bar-area");
     if (type === "MASAKI" || type === "ANNIVERSARY") {
@@ -1099,37 +1072,10 @@
       if (floatingBtn) floatingBtn.classList.remove("show");
       if (profileEditBtn) profileEditBtn.classList.remove("show");
       document.getElementById("admin-form").style.display = "none";
-      // ログアウト時に管理専用タブが開いていた場合はMAGAZINEに戻す
-      if (currentMainType === "ANNIVERSARY") {
-        currentMainType = "MAGAZINE";
-      }
     }
-    renderTypeTabs();
-    updateFormSelectOptions();
   }
 
-  // 隠しコマンド（3回連続タップ）の処理
   function handleSecretAdminTap() {
-    if (isAdminLoggedIn) {
-      checkAndToggleForm();
-      return;
-    }
-
-    secretTapCount++;
-    clearTimeout(secretTapTimer);
-
-    secretTapTimer = setTimeout(() => {
-      secretTapCount = 0;
-    }, 500);
-
-    if (secretTapCount >= 3) {
-      secretTapCount = 0;
-      clearTimeout(secretTapTimer);
-      checkAndToggleForm();
-    }
-  }
-
-  function checkAndToggleForm() {
     if (!isAdminLoggedIn) {
       const pwd = prompt("管理者パスワードを入力してください：");
       if (pwd === "masaki123") {
@@ -1157,6 +1103,40 @@
     if (form.style.display === "block" && !document.getElementById("edit-item-id").value) resetFormToCreateMode();
   }
 
+  // --- フッターの長押し検知設定 ---
+  let pressTimer = null;
+  const adminBtn = document.getElementById("admin-toggle-btn");
+
+  if (adminBtn) {
+    const startPress = (e) => {
+      e.preventDefault();
+      // すでにログイン済みの場合は通常のタップですぐログアウト等のメニューへ
+      if (isAdminLoggedIn) {
+        handleSecretAdminTap();
+        return;
+      }
+      // 未ログイン状態のときは1.5秒（1500ミリ秒）長押しで起動
+      pressTimer = setTimeout(() => {
+        handleSecretAdminTap();
+      }, 1500);
+    };
+
+    const cancelPress = () => {
+      if (pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+      }
+    };
+
+    adminBtn.addEventListener("touchstart", startPress);
+    adminBtn.addEventListener("touchend", cancelPress);
+    adminBtn.addEventListener("touchmove", cancelPress);
+    
+    adminBtn.addEventListener("mousedown", startPress);
+    adminBtn.addEventListener("mouseup", cancelPress);
+    adminBtn.addEventListener("mouseleave", cancelPress);
+  }
+
   function toggleFormFromFloating() {
     const form = document.getElementById("admin-form");
     if (form.style.display !== "block") {
@@ -1171,11 +1151,13 @@
     document.getElementById("form-heading-text").textContent = "📖 スケジュール追加";
     document.getElementById("form-submit-btn").textContent = "登録する";
     document.getElementById("form-cancel-btn").style.display = "none";
+    document.getElementById("group-repeat").style.display = "block";
     
     const now = new Date();
     document.getElementById("input-date").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
     document.getElementById("input-title").value = "";
     document.getElementById("input-desc").value = "";
+    document.getElementById("input-repeat").value = "none";
     updateFormStatusOptions();
     updateFormVisibilityBytype();
   }
@@ -1317,6 +1299,7 @@
     const type = document.getElementById("input-type").value;
     const title = document.getElementById("input-title").value;
     const desc = document.getElementById("input-desc").value;
+    const repeat = document.getElementById("input-repeat").value;
     const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
 
     if (!date || !title) { alert("日付とタイトルを入力してください"); return; }
@@ -1330,17 +1313,56 @@
         item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
       }
       alert("更新しました！");
+      saveItemsToStorage();
     } else {
-      const newId = Date.now();
-      itemsData.push({ 
-        id: newId, type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      let datesToRegister = [date];
+      
+      if (repeat !== "none") {
+        let baseDate = new Date(date + "T00:00:00");
+        let limitCount = 1;
+        let stepType = repeat;
+
+        if (stepType === "weekly") {
+          limitCount = 26;
+        } else if (stepType === "monthly") {
+          limitCount = 12;
+        } else if (stepType === "yearly") {
+          limitCount = 3;
+        }
+
+        for (let i = 1; i <= limitCount; i++) {
+          let nextDate = new Date(baseDate.getTime());
+          if (stepType === "weekly") {
+            nextDate.setDate(baseDate.getDate() + (7 * i));
+          } else if (stepType === "monthly") {
+            nextDate.setMonth(baseDate.getMonth() + i);
+          } else if (stepType === "yearly") {
+            nextDate.setFullYear(baseDate.getFullYear() + i);
+          }
+
+          let y = nextDate.getFullYear();
+          let m = String(nextDate.getMonth() + 1).padStart(2, '0');
+          let d = String(nextDate.getDate()).padStart(2, '0');
+          datesToRegister.push(`${y}-${m}-${d}`);
+        }
+      }
+
+      let firstNewId = null;
+      datesToRegister.forEach((dStr, idx) => {
+        const newId = Date.now() + idx;
+        if (idx === 0) firstNewId = newId;
+
+        itemsData.push({ 
+          id: newId, type, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+          reservations: type === "ANNIVERSARY" ? [] : JSON.parse(JSON.stringify(defaultReservations))
+        });
       });
-      addNotification(newId, title);
-      alert("追加しました！ベルマークから通知を確認できます！");
+
+      if (firstNewId) addNotification(firstNewId, title);
+      alert(datesToRegister.length > 1 ? `${datesToRegister.length}件のスケジュールをまとめて登録しました！` : "追加しました！");
+      saveItemsToStorage();
     }
 
-    saveItemsToStorage();
     document.getElementById("admin-form").style.display = "none";
     resetFormToCreateMode();
     render();
@@ -1426,6 +1448,8 @@
     document.getElementById("input-type").value = item.type;
     updateFormStatusOptions(item.status);
     updateFormVisibilityBytype();
+
+    document.getElementById("group-repeat").style.display = "none";
 
     document.getElementById("input-links").value = (item.links || []).map(l => `${l.name}:${l.url}`).join(", ");
     document.getElementById("form-heading-text").textContent = "✏️ スケジュール編集";
@@ -1624,5 +1648,3 @@
 
 </body>
 </html>
-
-
