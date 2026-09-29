@@ -1069,7 +1069,6 @@
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    // すべてのカテゴリ共通で選べるステータス候補（誕生日・記念日を含む）
     let options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "放送予定", "映画公開", "ゲスト出演", "レギュラー", "イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日"];
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
@@ -1472,14 +1471,11 @@
       let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
       let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
 
-      // 【修正】ステータスに「誕生日」または「記念日」が含まれている場合は、どのタブ（MAGAZINE, PROGRAM, EVENT）を開いていても常に表示させる
       if (itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) {
         if (currentMainType === "MASAKI") {
-          // ココまさきタブのときは除外（お好みで変更可ですが通常タブ側に表示）
           return false;
         }
       } else {
-        // 通常の予定は、選択中のメインタブが含まれている場合のみ表示
         if (!itemTypes.includes(currentMainType)) return false;
       }
 
@@ -1511,7 +1507,10 @@
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
     let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
 
-    if (itemTypes.includes("MAGAZINE") || itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) {
+    // 【修正】ステータスに「誕生日」または「記念日」が含まれている場合は管理ステータスボタンを表示しない
+    const isBirthdayOrAnniversary = itemStatuses.includes("誕生日") || itemStatuses.includes("記念日");
+
+    if ((itemTypes.includes("MAGAZINE") || itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) && !isBirthdayOrAnniversary) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
