@@ -77,7 +77,6 @@
             gap: 3px;
         }
 
-        /* 更新ボタンのアニメーション用 */
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -300,16 +299,17 @@
             flex-direction: column;
             gap: 2px;
             cursor: pointer;
-            transition: background 0.2s;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        .day-cell:hover {
-            background-color: var(--pale-pink);
+        .day-cell:active {
+            background-color: var(--light-pink);
         }
 
         .day-number {
             font-size: 11px;
             color: var(--text-color);
+            pointer-events: none;
         }
 
         .event-badge {
@@ -322,6 +322,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
+            pointer-events: none;
         }
 
         /* ポップアップ（モーダル）画面スタイル */
@@ -336,14 +337,14 @@
             justify-content: center;
             align-items: flex-end;
             z-index: 1000;
+            visibility: hidden;
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
         }
 
         .modal-overlay.show {
+            visibility: visible;
             opacity: 1;
-            pointer-events: auto;
         }
 
         .modal-content {
@@ -381,6 +382,7 @@
             font-size: 18px;
             cursor: pointer;
             color: var(--text-color);
+            padding: 4px 8px;
         }
 
         .detail-card {
@@ -393,10 +395,9 @@
         }
 
         .detail-category {
-            fn-size: 10px;
+            font-size: 10px;
             color: var(--gray-text);
             margin-bottom: 4px;
-            font-size: 10px;
         }
 
         .detail-title {
@@ -461,7 +462,6 @@
                 <span>💖 橋本将生 Schedule</span>
             </div>
             <div class="header-buttons">
-                <!-- 更新ボタン（アイコン付き） -->
                 <button class="action-btn" id="refreshBtn" onclick="manualReload()" title="最新情報を読み込む">
                     <span id="refreshIcon">🔄</span> 更新
                 </button>
@@ -554,19 +554,10 @@
         let isAdmin = false;
         const ADMIN_PASSWORD = "oshi";
 
-        // ① アプリを開いたとき（読み込み時）に自動でキャッシュを無視して最新データを取得する処理
-        window.addEventListener('load', () => {
-            // ホーム画面から起動された、または再訪問された際に最新の状態をチェック
-            console.log("アプリが起動しました：最新情報を確認中...");
-        });
-
-        // ② 手動更新ボタンが押されたときの処理（アイコンを回転させながら強制リロード）
         function manualReload() {
             const icon = document.getElementById("refreshIcon");
             icon.classList.add("spin");
-            
             setTimeout(() => {
-                // ブラウザのキャッシュを完全にクリアしてサーバーから強制再読み込み
                 window.location.reload(true);
             }, 500);
         }
@@ -584,8 +575,9 @@
             `;
             grid.innerHTML = weekdaysHTML;
 
-            for (let i = 27; i <= 30; i++) {
-                grid.innerHTML += `<div class="day-cell" style="opacity: 0.5;"><span class="day-number">${i}</span></div>`;
+            // 2026年10月1日は木曜日（空白4マス）
+            for (let i = 0; i < 4; i++) {
+                grid.innerHTML += `<div class="day-cell" style="opacity: 0.3; background-color: #fafafa; pointer-events: none;"></div>`;
             }
 
             for (let day = 1; day <= 31; day++) {
@@ -597,13 +589,21 @@
                 }
 
                 grid.innerHTML += `
-                    <div class="day-cell" onclick="openDayModal(${day})">
+                    <div class="day-cell" data-day="${day}">
                         <span class="day-number">${day}</span>
                         ${eventHtml}
                     </div>
                 `;
             }
         }
+
+        // カレンダーグリッド全体にクリック/タップイベントを設定（確実な反応のため）
+        document.getElementById("calendarGrid").addEventListener("click", function(e) {
+            const cell = e.target.closest(".day-cell");
+            if (cell && cell.dataset.day) {
+                openDayModal(cell.dataset.day);
+            }
+        });
 
         function openDayModal(day) {
             const overlay = document.getElementById("modalOverlay");
@@ -681,7 +681,7 @@
             const day = document.getElementById("eventDay").value;
             const category = document.getElementById("eventCategory").value;
             const title = document.getElementById("eventTitle").value;
-            const desc = document.getElementById("eventDesc").value;
+            const desc = document.getElementById("eventDesc5")?.value || document.getElementById("eventDesc").value;
 
             if (!day || !title) {
                 alert("日付とタイトルは必須です。");
