@@ -437,7 +437,6 @@
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
     <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
     <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
-    <button class="type-tab" id="tab-anniversary" onclick="switchMainType('ANNIVERSARY')">記念日/誕生日</button>
   </div>
 
   <div class="filter-section">
@@ -474,20 +473,19 @@
         <option value="PROGRAM">番組/映画</option>
         <option value="EVENT">イベント</option>
         <option value="MASAKI">ココまさき</option>
-        <option value="ANNIVERSARY">記念日/誕生日</option>
       </select>
     </div>
     <div class="form-group">
-      <label>ステータス（複数選択可）</label>
+      <label>ステータス（複数選択可。誕生日・記念日はどのカテゴリでも全カレンダーに表示されます）</label>
       <div id="input-status-container" class="checkbox-row-container"></div>
     </div>
     <div class="form-group" id="group-repeat">
       <label>繰り返し設定</label>
       <select id="input-repeat">
         <option value="none">なし（1回のみ）</option>
-        <option value="weekly">毎週 (半年分作成)</option>
-        <option value="monthly">毎月 (1年分作成)</option>
-        <option value="yearly">毎年 (3年分作成)</option>
+        <option value="weekly">毎週</option>
+        <option value="monthly">毎月</option>
+        <option value="yearly">毎年</option>
       </select>
     </div>
     <div class="form-group">
@@ -639,7 +637,7 @@
         reservations: JSON.parse(JSON.stringify(defaultReservations))
       },
       { 
-        id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル", desc: "記念日や誕生日の予定です。", status: ["記念日"], member: "橋本将生", 
+        id: 3, type: "EVENT", date: "2026-01-01", endDate: "", time: "", title: "誕生日・記念日サンプル", desc: "誕生日や記念日の予定です。", status: ["誕生日", "記念日"], member: "橋本将生", 
         links: [], 
         reservations: []
       }
@@ -744,10 +742,18 @@
       return;
     }
 
-    switchMainType(item.type);
+    // 記念日/誕生日ステータスを持つものは MAGZINE タブなどに飛ばす
+    let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+    if (item.type === "MASAKI") {
+      switchMainType("MASAKI");
+    } else if (itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) {
+      switchMainType("MAGAZINE");
+    } else {
+      switchMainType(item.type);
+    }
 
     setTimeout(() => {
-      if (item.type !== "MASAKI" && item.type !== "ANNIVERSARY") {
+      if (item.type !== "MASAKI") {
         switchView('list');
       }
 
@@ -899,10 +905,9 @@
     if (type === "PROGRAM") document.getElementById("tab-program").classList.add("active");
     if (type === "EVENT") document.getElementById("tab-event").classList.add("active");
     if (type === "MASAKI") document.getElementById("tab-masaki").classList.add("active");
-    if (type === "ANNIVERSARY") document.getElementById("tab-anniversary").classList.add("active");
     
     const viewBar = document.getElementById("view-mode-bar-area");
-    if (type === "MASAKI" || type === "ANNIVERSARY") {
+    if (type === "MASAKI") {
       viewBar.style.display = "none";
     } else {
       viewBar.style.display = "flex";
@@ -925,14 +930,15 @@
   function updateFormVisibilityBytype() {
     const typeSelect = document.getElementById("input-type");
     const targetType = typeSelect ? typeSelect.value : currentMainType;
-    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
-    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
+    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
+    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI") ? "none" : "block";
   }
 
   function updateStatusFilterPills() {
     const container = document.getElementById("status-filters");
     container.innerHTML = "";
-    let statuses = ["すべて"];
+    let statuses = ["すべて", "誕生日", "記念日"]; // どのタブでも誕生日・記念日で絞り込めるように追加
+    
     if (currentMainType === "MAGAZINE") {
       statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
     } else if (currentMainType === "PROGRAM") {
@@ -940,9 +946,7 @@
     } else if (currentMainType === "EVENT") {
       statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
     } else if (currentMainType === "MASAKI") {
-      statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他");
-    } else if (currentMainType === "ANNIVERSARY") {
-      statuses.push("記念日", "誕生日", "その他");
+      statuses = ["すべて", "話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
     }
     
     statuses.forEach(st => {
@@ -961,17 +965,16 @@
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    let options = [];
+    let options = ["誕生日", "記念日"]; // どのカテゴリでも誕生日・記念日を選択可能に
+    
     if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売"];
+      options.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
     } else if (targetType === "PROGRAM") {
-      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
+      options.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
     } else if (targetType === "EVENT") {
-      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
+      options.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
     } else if (targetType === "MASAKI") {
       options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
-    } else if (targetType === "ANNIVERSARY") {
-      options = ["記念日", "誕生日", "その他"];
     }
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
@@ -1103,19 +1106,16 @@
     if (form.style.display === "block" && !document.getElementById("edit-item-id").value) resetFormToCreateMode();
   }
 
-  // --- フッターの長押し検知設定 ---
   let pressTimer = null;
   const adminBtn = document.getElementById("admin-toggle-btn");
 
   if (adminBtn) {
     const startPress = (e) => {
       e.preventDefault();
-      // すでにログイン済みの場合は通常のタップですぐログアウト等のメニューへ
       if (isAdminLoggedIn) {
         handleSecretAdminTap();
         return;
       }
-      // 未ログイン状態のときは1.5秒（1500ミリ秒）長押しで起動
       pressTimer = setTimeout(() => {
         handleSecretAdminTap();
       }, 1500);
@@ -1323,11 +1323,11 @@
         let stepType = repeat;
 
         if (stepType === "weekly") {
-          limitCount = 26;
+          limitCount = 26; // 毎週（約半年分）
         } else if (stepType === "monthly") {
-          limitCount = 12;
+          limitCount = 12; // 毎月（1年分）
         } else if (stepType === "yearly") {
-          limitCount = 3;
+          limitCount = 3;  // 毎年（3年分）
         }
 
         for (let i = 1; i <= limitCount; i++) {
@@ -1354,7 +1354,7 @@
 
         itemsData.push({ 
           id: newId, type, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
-          reservations: type === "ANNIVERSARY" ? [] : JSON.parse(JSON.stringify(defaultReservations))
+          reservations: type === "MASAKI" ? JSON.parse(JSON.stringify(defaultReservations)) : JSON.parse(JSON.stringify(defaultReservations))
         });
       });
 
@@ -1370,9 +1370,24 @@
 
   function filterItems() {
     return itemsData.filter(item => {
-      if (item.type !== currentMainType) return false;
+      let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+      let isAnniversaryOrBirthday = itemStatuses.includes("誕生日") || itemStatuses.includes("記念日");
+
+      // 「ココまさき」タブの時は MASAKI のみ、かつ誕生日等を除外するかどうか（お好みで。ここでは通常通り）
+      if (currentMainType === "MASAKI") {
+        if (item.type !== "MASAKI") return false;
+      } else {
+        // ココまさき以外（MAGAZINE, PROGRAM, EVENT）の場合：
+        // 1. 自身のカテゴリに一致するもの
+        // 2. または、ステータスに「誕生日」か「記念日」が含まれるものは、どのタブでも表示させる
+        let matchesCategory = (item.type === currentMainType);
+        if (!matchesCategory && !isAnniversaryOrBirthday) {
+          return false;
+        }
+      }
+
+      // ステータスフィルターの適用
       if (!currentStatusFilters.includes("すべて")) {
-        let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
         if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
       }
       return true;
@@ -1384,7 +1399,7 @@
     container.innerHTML = "";
     let filtered = filterItems();
 
-    if (currentMainType === "MASAKI" || currentMainType === "ANNIVERSARY") {
+    if (currentMainType === "MASAKI") {
       renderMonthAccordionListView(filtered, container);
     } else {
       if (currentViewMode === "calendar") {
