@@ -77,7 +77,6 @@
     .profile-link-btn:hover { background: var(--tag-bg); color: var(--deep-color); border-color: var(--main-color); }
 
     .today-topic-card { background: linear-gradient(135deg, #ff80ab, #ff4081); color: #fff; border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; }
-    .today-topic-card.birthday-mode { background: linear-gradient(135deg, #ffbc00, #ff5722); }
     .topic-label { font-size: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px; display: inline-block; font-weight: bold; margin-bottom: 4px; }
     .topic-title { font-size: 13px; font-weight: bold; line-height: 1.4; }
 
@@ -184,11 +183,6 @@
       margin-bottom: 10px; 
       box-shadow: 0 1px 3px rgba(0,0,0,0.01);
       position: relative;
-    }
-    .item-card.sns-style {
-      background: #fffcfd;
-      border-left: 4px solid var(--main-color);
-      border-radius: 0 12px 12px 0;
     }
     .item-card:last-child { margin-bottom: 0; }
     .item-summary-bar { cursor: pointer; }
@@ -383,15 +377,9 @@
     .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
     .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
 
-    /* 管理者専用バックアップパネル */
-    .admin-backup-panel { display: none; background: #fff; border: 1px dashed var(--deep-color); border-radius: 12px; padding: 10px; margin-bottom: 12px; }
-    .admin-backup-panel.show { display: block; }
-    .backup-btn-row { display: flex; gap: 6px; margin-top: 6px; }
-    .backup-action-btn { flex: 1; font-size: 10px; font-weight: bold; padding: 6px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--tag-bg); color: var(--deep-color); cursor: pointer; }
-
     /* コピーライト風の隠しログインエリア */
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
-    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; -webkit-touch-callout: none; user-select: none; }
+    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; }
     .admin-footer-btn:hover { opacity: 1; }
     .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
   </style>
@@ -429,16 +417,6 @@
     <div class="profile-collapsible-content" id="profile-collapsible-area">
       <button class="profile-edit-trigger" id="profile-edit-btn" onclick="openProfileEditModal()">✏️ プロフィール編集</button>
       <div class="profile-links-grid" id="profile-links-container"></div>
-    </div>
-  </div>
-
-  <!-- 管理者専用バックアップパネル -->
-  <div class="admin-backup-panel" id="admin-backup-panel">
-    <div style="font-size: 11px; font-weight: bold; color: var(--deep-color);">💾 データバックアップ・復元</div>
-    <div class="backup-btn-row">
-      <button class="backup-action-btn" onclick="exportDataToJson()">エクスポート (保存)</button>
-      <button class="backup-action-btn" onclick="triggerImportJson()">インポート (復元)</button>
-      <input type="file" id="import-file-input" style="display:none;" accept=".json" onchange="importDataFromJson(event)">
     </div>
   </div>
 
@@ -522,12 +500,7 @@
   <div id="content-area"></div>
 
   <div class="footer-admin-area">
-    <button class="admin-footer-btn" id="admin-toggle-btn" 
-      onmousedown="startAdminLongPress(event)" 
-      onmouseup="cancelAdminLongPress()" 
-      onmouseleave="cancelAdminLongPress()" 
-      ontouchstart="startAdminLongPress(event)" 
-      ontouchend="cancelAdminLongPress()">© Masaki Schedule</button>
+    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="handleSecretAdminTap()">© Masaki Schedule</button>
   </div>
 </div>
 
@@ -608,8 +581,8 @@
   
   let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
 
-  // 長押し用タイマーの変数
-  let adminPressTimer = null;
+  let secretTapCount = 0;
+  let secretTapTimer = null;
 
   let activeManageItemId = null;
   let activeCalendarDateStr = null;
@@ -656,12 +629,14 @@
 
   async function loadDataFromCloud() {
     try {
-      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest`, {
-        headers: { 'X-Master-Key': API_KEY }
+      const res = await fetch(`https://api.jsonbin.io/v3/b/${BIN_ID}/latest?_t=${Date.now()}`, {
+        headers: { 'X-Master-Key': API_KEY },
+        cache: 'no-store'
       });
       const json = await res.json();
       if (json.record) {
         itemsData = json.record;
+        localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
       }
     } catch (e) {
       console.error("クラウドからの読み込みに失敗しました。ローカルデータを使います", e);
@@ -786,9 +761,18 @@
       return;
     }
 
+    // 予定の年月を自動でカレンダーに反映させる
+    if (item.date) {
+      let parts = item.date.split("-");
+      if (parts.length === 3) {
+        currentCalYear = parseInt(parts[0], 10);
+        currentCalMonth = parseInt(parts[1], 10) - 1;
+      }
+    }
+
     switchMainType(item.type);
     setTimeout(() => {
-      if (item.type !== "MASAKI") switchView('list');
+      if (item.type !== "MASAKI") switchView('calendar'); // カレンダー表示に切り替え
       const cardEl = document.getElementById(`item-detail-${item.id}`);
       if (cardEl) {
         cardEl.classList.add("open");
@@ -800,12 +784,6 @@
   }
 
   window.addEventListener('load', () => {
-    const btn = document.getElementById("reload-btn");
-    if (btn) {
-      btn.classList.add("spinning");
-      setTimeout(() => { btn.classList.remove("spinning"); }, 600);
-    }
-
     applyAdminLoginStateUI();
     renderProfileCard();
     updateStatusFilterPills();
@@ -824,7 +802,7 @@
     if (window.caches) {
       caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
     }
-    setTimeout(() => { loadDataFromCloud(); }, 400);
+    loadDataFromCloud();
   }
 
   function toggleProfileAccordion() {
@@ -1075,36 +1053,21 @@
   }
 
   function updateTodayTopic() {
+    const releaseDate = new Date("2026-12-04T00:00:00");
     const today = new Date();
-    const m = today.getMonth() + 1;
-    const d = today.getDate();
+    releaseDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = releaseDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    const topicBox = document.getElementById("today-topic-box");
-    const labelEl = document.getElementById("topic-label");
     const topicEl = document.getElementById("topic-text");
-
-    if (m === 10 && d === 17) {
-      topicBox.classList.add("birthday-mode");
-      labelEl.textContent = "🎂 HAPPY BIRTHDAY";
-      topicEl.textContent = "本日は橋本将生さんのお誕生日です！おめでとうございます🎉素敵な1年になりますように！";
+    if (diffDays > 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』公開まで あと ${diffDays} 日！ (12/4公開)`;
+    } else if (diffDays === 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』本日公開！`;
     } else {
-      topicBox.classList.remove("birthday-mode");
-      labelEl.textContent = "✨ 映画公開カウントダウン";
-      
-      const releaseDate = new Date("2026-12-04T00:00:00");
-      releaseDate.setHours(0, 0, 0, 0);
-      today.setHours(0, 0, 0, 0);
-
-      const diffTime = releaseDate - today;
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
-      if (diffDays > 0) {
-        topicEl.textContent = `映画『お姉ちゃんの翠くん』公開まで あと ${diffDays} 日！ (12/4公開)`;
-      } else if (diffDays === 0) {
-        topicEl.textContent = `映画『お姉ちゃんの翠くん』本日公開！`;
-      } else {
-        topicEl.textContent = `映画『お姉ちゃんの翠くん』大ヒット公開中！`;
-      }
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』大ヒット公開中！`;
     }
   }
 
@@ -1112,7 +1075,6 @@
     const btn = document.getElementById("admin-toggle-btn");
     const floatingBtn = document.getElementById("floating-add-btn");
     const profileEditBtn = document.getElementById("profile-edit-btn");
-    const backupPanel = document.getElementById("admin-backup-panel");
 
     if (isAdminLoggedIn) {
       if (btn) {
@@ -1121,7 +1083,6 @@
       }
       if (floatingBtn) floatingBtn.classList.add("show");
       if (profileEditBtn) profileEditBtn.classList.add("show");
-      if (backupPanel) backupPanel.classList.add("show");
     } else {
       if (btn) {
         btn.textContent = "© Masaki Schedule";
@@ -1129,35 +1090,26 @@
       }
       if (floatingBtn) floatingBtn.classList.remove("show");
       if (profileEditBtn) profileEditBtn.classList.remove("show");
-      if (backupPanel) backupPanel.classList.remove("show");
       document.getElementById("admin-form").style.display = "none";
     }
     renderTypeTabs();
     updateFormSelectOptions();
   }
 
-  // ==========================================
-  // ★ 長押し（ロングプレス）用のイベント関数
-  // ==========================================
-  function startAdminLongPress(e) {
-    if (e.cancelable) e.preventDefault();
-    
-    // すでにログイン中の場合は、長押し時にすぐログアウト確認やメニュー表示へ
+  function handleSecretAdminTap() {
     if (isAdminLoggedIn) {
       checkAndToggleForm();
       return;
     }
 
-    // 1.2秒（1200ミリ秒）押し続けた場合に発火
-    adminPressTimer = setTimeout(() => {
-      checkAndToggleForm();
-    }, 1200);
-  }
+    secretTapCount++;
+    clearTimeout(secretTapTimer);
+    secretTapTimer = setTimeout(() => { secretTapCount = 0; }, 500);
 
-  function cancelAdminLongPress() {
-    if (adminPressTimer) {
-      clearTimeout(adminPressTimer);
-      adminPressTimer = null;
+    if (secretTapCount >= 3) {
+      secretTapCount = 0;
+      clearTimeout(secretTapTimer);
+      checkAndToggleForm();
     }
   }
 
@@ -1378,44 +1330,6 @@
     render();
   }
 
-  function exportDataToJson() {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(itemsData, null, 2));
-    const downloadAnchor = document.createElement('a');
-    downloadAnchor.setAttribute("href", dataStr);
-    downloadAnchor.setAttribute("download", `masaki_schedule_backup_${new Date().toISOString().slice(0,10)}.json`);
-    document.body.appendChild(downloadAnchor);
-    downloadAnchor.click();
-    downloadAnchor.remove();
-  }
-
-  function triggerImportJson() {
-    document.getElementById("import-file-input").click();
-  }
-
-  function importDataFromJson(event) {
-    const fileReader = new FileReader();
-    if (event.target.files[0]) {
-      fileReader.readAsText(event.target.files[0], "UTF-8");
-      fileReader.onload = (e) => {
-        try {
-          const imported = JSON.parse(e.target.result);
-          if (Array.isArray(imported)) {
-            if (confirm(`バックアップデータから ${imported.length}件のスケジュールを読み込みます。現在のデータに上書きしますか？`)) {
-              itemsData = imported;
-              saveItemsToStorage();
-              render();
-              alert("データの復元が完了しました！");
-            }
-          } else {
-            alert("無効なJSONファイル形式です。");
-          }
-        } catch (err) {
-          alert("JSONファイルの解析に失敗しました。");
-        }
-      };
-    }
-  }
-
   function expandRecurringItems(rawItems, targetYear, targetMonth) {
     let expanded = [];
 
@@ -1428,6 +1342,7 @@
       if (repeat === "none") {
         expanded.push(item);
       } else if (repeat === "yearly") {
+        // 毎年同じ月日
         let m = baseDate.getMonth();
         let d = baseDate.getDate();
         let virtualDateStr = `${targetYear}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -1436,6 +1351,7 @@
         clone.date = virtualDateStr;
         expanded.push(clone);
       } else if (repeat === "monthly") {
+        // 毎月同じ日
         let d = baseDate.getDate();
         let lastDayOfTargetMonth = new Date(targetYear, targetMonth + 1, 0).getDate();
         let actualDay = Math.min(d, lastDayOfTargetMonth);
@@ -1445,10 +1361,11 @@
         clone.date = virtualDateStr;
         expanded.push(clone);
       } else if (repeat === "weekly") {
+        // 毎週の曜日をその月に展開
         let baseDayOfWeek = baseDate.getDay();
         let curr = new Date(targetYear, targetMonth, 1);
         while (curr.getMonth() === targetMonth) {
-          if (curr.getDay() === baseDayOfWeek && curr >= new Date(item.date)) {
+          if (curr.getDay() === baseDayOfWeek) {
             let y = curr.getFullYear();
             let m = curr.getMonth();
             let d = curr.getDate();
@@ -1508,8 +1425,9 @@
   function createCardHtml(item) {
     let purchaseHtml = "";
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+    let isAnniversary = itemStatuses.includes("記念日") || itemStatuses.includes("誕生日");
 
-    if (item.type === "MAGAZINE") {
+    if (item.type === "MAGAZINE" && !isAnniversary) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
@@ -1519,10 +1437,8 @@
     let statusTagsHtml = itemStatuses.map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
 
-    let cardClass = currentMainType === "MASAKI" ? "item-card sns-style" : "item-card";
-
     return `
-      <div class="${cardClass}">
+      <div class="item-card">
         <div class="item-summary-bar" onclick="toggleItemDetail(${item.id})">
           <div class="item-header-row">
             <div class="item-date-text">📅 ${item.date}</div>
