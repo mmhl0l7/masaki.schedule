@@ -1,806 +1,1626 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>橋本将生 Schedule</title>
-    <style>
-        :root {
-            --primary-pink: #ff4081;
-            --light-pink: #ffe4ec;
-            --pale-pink: #fff0f5;
-            --accent-pink: #e91e63;
-            --text-color: #333333;
-            --gray-border: #f0f0f0;
-            --gray-text: #888888;
-        }
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>橋本将生 Schedule</title>
+  <style>
+    :root {
+      --pastel-base: #fdf6f9;
+      --main-color: #ff69b4;
+      --deep-color: #d81b60;
+      --border-color: #fce4ec;
+      --card-bg: #ffffff;
+      --tag-bg: #fff0f5;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--pastel-base);
+      margin: 0;
+      padding: 10px;
+      padding-bottom: 80px;
+      color: #333;
+    }
+    .app-container {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      box-sizing: border-box;
+    }
 
-        body {
-            background-color: var(--pale-pink);
-            color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            padding: 10px;
-        }
+    .checkbox-row-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .checkbox-row-container label {
+      font-size: 11px;
+      font-weight: normal;
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: #fff0f5;
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      cursor: pointer;
+    }
+    .checkbox-row-container input[type="checkbox"] {
+      margin: 0;
+      width: 14px;
+      height: 14px;
+      flex-shrink: 0;
+    }
 
-        .container {
-            width: 100%;
-            max-width: 480px;
-            background-color: #ffffff;
-            border-radius: 16px;
-            padding: 16px;
-            box-shadow: 0 4px 12px rgba(255, 64, 129, 0.1);
-            position: relative;
-        }
+    .profile-card { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 14px; margin-bottom: 12px; position: relative; }
+    .profile-summary-bar { display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .profile-header { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .profile-avatar { width: 45px; height: 45px; background: #fce4ec; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid var(--main-color); flex-shrink: 0; }
+    .profile-name-area { min-width: 0; }
+    .profile-name-area h2 { font-size: 14px; color: var(--deep-color); margin: 0 0 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .profile-name-area p { font-size: 11px; color: #666; margin: 0; }
+    .accordion-toggle-icon { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 4px 8px; border-radius: 12px; border: 1px solid #f8bbd0; flex-shrink: 0; }
+    .profile-collapsible-content { display: none; margin-top: 12px; border-top: 1px dashed var(--border-color); padding-top: 10px; position: relative; }
+    .profile-collapsible-content.open { display: block; }
+    .profile-edit-trigger { display: none; position: absolute; top: 10px; right: 0; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; padding: 3px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; cursor: pointer; }
+    .profile-edit-trigger.show { display: block; }
 
-        /* ヘッダー */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-        }
+    .profile-links-grid { display: flex; flex-direction: column; gap: 12px; }
+    .profile-section-block { background: #faf5f7; border: 1px solid var(--border-color); border-radius: 12px; padding: 10px; }
+    .profile-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+    .profile-link-buttons-wrap { display: flex; flex-wrap: wrap; gap: 6px; }
+    .profile-link-btn { font-size: 11px; background: #fff; color: #555; border: 1px solid var(--border-color); padding: 5px 10px; border-radius: 8px; text-decoration: none; font-weight: bold; }
+    .profile-link-btn:hover { background: var(--tag-bg); color: var(--deep-color); border-color: var(--main-color); }
 
-        .header-title {
-            display: flex;
-            align-items: center;
-            font-size: 18px;
-            font-weight: bold;
-            color: var(--accent-pink);
-            cursor: pointer;
-            user-select: none;
-        }
+    .today-topic-card { background: linear-gradient(135deg, #ff80ab, #ff4081); color: #fff; border-radius: 16px; padding: 12px 16px; margin-bottom: 12px; }
+    .topic-label { font-size: 10px; background: rgba(255,255,255,0.3); padding: 2px 8px; border-radius: 10px; display: inline-block; font-weight: bold; margin-bottom: 4px; }
+    .topic-title { font-size: 13px; font-weight: bold; line-height: 1.4; }
 
-        .header-buttons {
-            display: flex;
-            gap: 6px;
-            align-items: center;
-        }
+    .header-top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+    .app-title-area { display: flex; align-items: center; gap: 6px; }
+    .app-title-text { font-size: 14px; font-weight: bold; color: var(--deep-color); }
+    
+    .icon-action-btn { 
+      background: #fff; 
+      border: 1px solid var(--border-color); 
+      color: var(--deep-color); 
+      width: 32px; 
+      height: 32px; 
+      border-radius: 50%; 
+      font-size: 14px; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      cursor: pointer; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      transition: transform 0.5s ease;
+    }
+    .icon-action-btn.spinning { transform: rotate(360deg); }
+    
+    .notification-status-badge { 
+      background: #fff; 
+      border: 1px solid var(--border-color); 
+      padding: 6px 12px; 
+      border-radius: 16px; 
+      font-size: 11px; 
+      font-weight: bold; 
+      color: var(--deep-color); 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 4px;
+      position: relative;
+    }
+    .notification-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--main-color);
+      border-radius: 50%;
+      display: none;
+    }
+    .notification-dot.show { display: inline-block; }
 
-        .action-btn {
-            background-color: #fff9fb;
-            border: 1px solid var(--light-pink);
-            padding: 6px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            color: var(--text-color);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 3px;
-        }
+    .type-tabs { display: flex; background: #f8bbd0; border-radius: 24px; padding: 4px; margin-bottom: 12px; gap: 2px; }
+    .type-tab { flex: 1; text-align: center; padding: 8px 4px; font-size: 11px; font-weight: bold; color: #880e4f; border-radius: 20px; cursor: pointer; background: transparent; border: none; white-space: nowrap; }
+    .type-tab.active { background: #ffffff; color: var(--deep-color); box-shadow: 0 2px 6px rgba(216, 27, 96, 0.2); }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        .spin {
-            animation: spin 0.8s linear;
-        }
+    .month-accordion-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      overflow: hidden;
+    }
+    .month-accordion-header {
+      padding: 14px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: bold;
+      color: #333;
+    }
+    .month-accordion-header::after {
+      content: "▾";
+      font-size: 14px;
+      color: #888;
+      transition: transform 0.2s;
+    }
+    .month-accordion-card.open .month-accordion-header::after {
+      transform: rotate(180deg);
+    }
+    .month-accordion-body {
+      display: none;
+      padding: 0 14px 14px 14px;
+      border-top: 1px dashed var(--border-color);
+    }
+    .month-accordion-card.open .month-accordion-body {
+      display: block;
+      padding-top: 12px;
+    }
 
-        /* カウントダウンバナー */
-        .countdown-banner {
-            background: linear-gradient(135deg, #ff65a3, #ff4081);
-            color: white;
-            border-radius: 12px;
-            padding: 14px;
-            text-align: center;
-            margin-bottom: 16px;
-            box-shadow: 0 4px 10px rgba(255, 64, 129, 0.2);
-            cursor: pointer;
-            transition: transform 0.1s ease;
-        }
-        .countdown-banner:active {
-            transform: scale(0.98);
-        }
+    .filter-section { background: #fff; border: 1px solid var(--border-color); border-radius: 16px; padding: 10px; margin-bottom: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
+    .filter-pill { font-size: 11px; padding: 4px 10px; border-radius: 14px; border: 1px solid var(--border-color); background: #fff; color: #555; cursor: pointer; font-weight: bold; }
+    .filter-pill.active { background: var(--deep-color); color: #fff; border-color: var(--deep-color); }
 
-        .countdown-tag {
-            display: inline-block;
-            background-color: rgba(255, 255, 255, 0.3);
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            margin-bottom: 6px;
-        }
+    .view-mode-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .view-switch { display: flex; background: #fce4ec; border-radius: 16px; padding: 3px; }
+    .view-btn { font-size: 11px; padding: 5px 12px; border-radius: 14px; border: none; background: transparent; color: var(--deep-color); font-weight: bold; cursor: pointer; }
+    .view-btn.active { background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 
-        .countdown-text {
-            font-size: 13px;
-            font-weight: bold;
-        }
+    .item-card { 
+      background: var(--card-bg); 
+      border: 1px solid var(--border-color); 
+      border-radius: 12px; 
+      padding: 12px; 
+      margin-bottom: 10px; 
+      box-shadow: 0 1px 3px rgba(0,0,0,0.01);
+      position: relative;
+    }
+    .item-card:last-child { margin-bottom: 0; }
+    .item-summary-bar { cursor: pointer; }
+    .item-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .item-date-text { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 2px 8px; border-radius: 10px; display: inline-block; }
+    
+    .purchase-status-badge { 
+      font-size: 11px; 
+      padding: 3px 10px; 
+      border-radius: 12px; 
+      border: 1px solid var(--border-color); 
+      background: #fff; 
+      color: #666; 
+      cursor: pointer; 
+      font-weight: bold; 
+    }
+    .purchase-status-badge.done { 
+      background: #e2f0d9; 
+      color: #385723; 
+      border-color: #b7e1cd; 
+    }
 
-        /* プロフィールカード */
-        .profile-card {
-            background-color: #ffffff;
-            border: 1px solid var(--light-pink);
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            cursor: pointer;
-            transition: background-color 0.1s ease;
-        }
-        .profile-card:active {
-            background-color: var(--pale-pink);
-        }
+    .item-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 6px; }
+    .item-collapsible-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
+    .item-collapsible-detail.open { display: block; }
+    .item-content-desc { font-size: 11px; color: #555; margin-bottom: 8px; line-height: 1.4; white-space: pre-wrap; }
+    .item-links-row { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+    .item-link-chip { font-size: 10px; background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; padding: 2px 8px; border-radius: 8px; text-decoration: none; font-weight: bold; }
 
-        .profile-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+    .item-footer-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; padding-top: 6px; border-top: 1px dashed var(--border-color); }
+    .badges-left { display: flex; gap: 4px; flex-wrap: wrap; align-items: center; }
+    .member-tag { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: var(--tag-bg); color: var(--deep-color); border: 1px solid #f8bbd0; font-weight: bold; }
 
-        .profile-avatar {
-            width: 44px;
-            height: 44px;
-            background-color: var(--light-pink);
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-        }
+    .item-action-icons { display: none; gap: 5px; }
+    .item-action-icons.show { display: flex; }
+    .icon-btn { background: #f9f9fc; border: 1px solid var(--border-color); padding: 3px 8px; border-radius: 10px; font-size: 11px; cursor: pointer; font-weight: bold; }
+    .edit-icon-btn { background: #e3f2fd; color: #1565c0; border-color: #bbdefb; }
+    .delete-icon-btn { background: #ffebee; color: #c62828; border-color: #ffcdd2; }
 
-        .profile-name {
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--accent-pink);
-        }
+    .form-container { display: none; background: #fff; border: 2px solid var(--main-color); border-radius: 16px; padding: 14px; margin-bottom: 16px; }
+    .form-group { margin-bottom: 8px; }
+    .form-group label { font-size: 11px; font-weight: bold; color: var(--deep-color); display: block; margin-bottom: 2px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 6px; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; font-size: 12px; }
+    .submit-btn { background: var(--main-color); color: #fff; border: none; width: 100%; padding: 8px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 6px; }
+    .cancel-edit-btn { background: #ccc; color: #fff; border: none; width: 100%; padding: 6px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 4px; font-size: 11px; }
 
-        .profile-sub {
-            font-size: 11px;
-            color: var(--gray-text);
-        }
+    .floating-add-btn {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      background: var(--main-color);
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(255, 105, 180, 0.4);
+      cursor: pointer;
+      z-index: 999;
+      align-items: center;
+      gap: 6px;
+    }
+    .floating-add-btn.show { display: flex; }
 
-        .profile-toggle {
-            background-color: #ffffff;
-            border: 1px solid var(--light-pink);
-            color: var(--accent-pink);
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            pointer-events: none; /* カード全体のクリックに任せる */
-        }
+    .calendar-nav-bar { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-color); padding: 8px 12px; border-radius: 16px; margin-bottom: 12px; }
+    .cal-nav-btn { background: #fce4ec; border: none; color: var(--deep-color); font-weight: bold; padding: 4px 10px; border-radius: 10px; cursor: pointer; font-size: 12px; }
+    .cal-current-label { font-size: 13px; font-weight: bold; color: var(--deep-color); }
+    .cal-today-small-btn { background: #fff; border: 1px solid var(--border-color); color: var(--deep-color); font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 10px; cursor: pointer; }
 
-        /* ナビゲーションタブ */
-        .nav-tabs {
-            display: flex;
-            background-color: var(--light-pink);
-            border-radius: 20px;
-            padding: 4px;
-            margin-bottom: 16px;
-        }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; background: #fff; padding: 8px; border-radius: 16px; border: 1px solid var(--border-color); }
+    .cal-cell { min-height: 65px; border: 1px solid #eee; border-radius: 6px; padding: 3px; font-size: 9px; background: #fafafa; overflow: hidden; cursor: pointer; }
+    .cal-cell.has-event { background: #fff0f5; border-color: var(--main-color); }
+    .cal-cell.is-today { background: #ffe4ec !important; border: 2px solid var(--deep-color) !important; }
+    .cal-day-num { font-weight: bold; color: #444; margin-bottom: 2px; display: block; }
+    .cal-event-title { background: var(--main-color); color: #fff; padding: 1px 3px; border-radius: 3px; margin-bottom: 2px; font-size: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .no-data { text-align: center; color: #888; font-size: 12px; padding: 20px; background: #fff; border-radius: 12px; }
 
-        .nav-tab {
-            flex: 1;
-            text-align: center;
-            padding: 8px 0;
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--accent-pink);
-            border-radius: 16px;
-            cursor: pointer;
-            background: transparent;
-            border: none;
-            transition: background-color 0.2s;
-        }
+    .notification-drawer-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 2000;
+      justify-content: flex-end;
+    }
+    .notification-drawer-overlay.open { display: flex; }
+    .notification-drawer {
+      background: #fff;
+      width: 85%;
+      max-width: 380px;
+      height: 100%;
+      box-sizing: border-box;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.15);
+      animation: slideLeft 0.3s ease-out;
+    }
+    @keyframes slideLeft {
+      from { transform: translateX(100%); }
+      to { transform: translateX(0); }
+    }
+    .notif-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+    .notif-header-title { font-size: 15px; font-weight: bold; color: var(--deep-color); }
+    .notif-header-actions { display: flex; align-items: center; gap: 10px; }
+    .notif-read-all-btn { font-size: 11px; background: none; border: none; color: #1565c0; cursor: pointer; font-weight: bold; padding: 0; }
+    .notif-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
+    
+    .notif-list-container { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
+    .notif-card {
+      background: #faf5f7;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 12px;
+      position: relative;
+    }
+    .notif-card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+    .notif-card-type { font-size: 10px; color: #666; font-weight: bold; }
+    .notif-card-time { font-size: 10px; color: #888; }
+    .notif-card-msg { font-size: 12px; font-weight: bold; color: #222; margin-bottom: 8px; line-height: 1.4; }
+    .notif-detail-btn {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 5px 12px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+    }
 
-        .nav-tab.active {
-            background-color: #ffffff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-        }
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 1000;
+      justify-content: center;
+      align-items: flex-end;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+      background: #fff;
+      width: 100%;
+      max-width: 500px;
+      max-height: 85vh;
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
+      animation: slideUp 0.3s ease-out;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+    .modal-date-title { font-size: 14px; font-weight: bold; color: var(--deep-color); }
+    .modal-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
 
-        /* カレンダーコントロール */
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-        }
+    .manage-modal-title-area { margin-bottom: 14px; }
+    .manage-modal-main-title { font-size: 13px; font-weight: bold; color: #222; margin-top: 2px; }
+    .manage-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin: 12px 0 6px 0; }
+    .manage-sub-label { font-size: 10px; color: #666; margin-bottom: 6px; }
+    .manage-row-card { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
+    .manage-row-left { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; color: #333; }
+    .manage-row-left input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--main-color); }
+    .manage-counter-wrap { display: flex; align-items: center; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
+    .manage-counter-btn { background: #f1f3f5; border: none; width: 26px; height: 26px; font-weight: bold; cursor: pointer; font-size: 12px; color: #555; }
+    .manage-counter-num { width: 28px; text-align: center; font-size: 12px; font-weight: bold; color: #333; }
+    .manage-add-row { display: flex; gap: 6px; margin-bottom: 10px; }
+    .manage-add-input { flex: 1; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; }
+    .manage-add-btn { background: #f8f9fa; border: 1px solid #ccc; color: #333; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
+    .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
 
-        .cal-btn {
-            background-color: #ffffff;
-            border: 1px solid var(--light-pink);
-            color: var(--accent-pink);
-            padding: 6px 12px;
-            border-radius: 16px;
-            font-size: 12px;
-            cursor: pointer;
-        }
-        .cal-btn:active {
-            background-color: var(--light-pink);
-        }
-
-        .current-month {
-            font-size: 15px;
-            font-weight: bold;
-            color: var(--accent-pink);
-        }
-
-        /* 管理者専用パネル */
-        .admin-panel {
-            background-color: #fff0f3;
-            border: 1px dashed var(--accent-pink);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 16px;
-            display: none;
-        }
-
-        .admin-panel.show {
-            display: block;
-        }
-
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-        }
-
-        .admin-panel h3 {
-            font-size: 12px;
-            color: var(--accent-pink);
-        }
-
-        .admin-logout-btn {
-            background: none;
-            border: none;
-            color: var(--gray-text);
-            font-size: 11px;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .admin-form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .admin-form-group input, .admin-form-group textarea {
-            padding: 6px 10px;
-            border: 1px solid #ffb6c1;
-            border-radius: 8px;
-            font-size: 12px;
-            outline: none;
-            width: 100%;
-        }
-
-        .add-event-btn {
-            background-color: var(--accent-pink);
-            color: white;
-            border: none;
-            padding: 8px;
-            border-radius: 8px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* カレンダー本体グリッド */
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 4px;
-        }
-
-        .weekdays {
-            text-align: center;
-            font-size: 12px;
-            font-weight: bold;
-            color: var(--accent-pink);
-            padding-bottom: 6px;
-        }
-
-        .day-cell {
-            background-color: #ffffff;
-            border: 1px solid var(--gray-border);
-            border-radius: 8px;
-            min-height: 80px;
-            padding: 4px;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-            cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .day-cell:active {
-            background-color: var(--light-pink);
-        }
-
-        .day-number {
-            font-size: 11px;
-            color: var(--text-color);
-            pointer-events: none;
-        }
-
-        .event-badge {
-            background-color: var(--accent-pink);
-            color: white;
-            font-size: 9px;
-            padding: 3px 6px;
-            border-radius: 4px;
-            margin-top: 2px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-            pointer-events: none;
-        }
-
-        /* ポップアップ（モーダル）画面スタイル */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.4);
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            z-index: 1000;
-            visibility: hidden;
-            opacity: 0;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        .modal-overlay.show {
-            visibility: visible;
-            opacity: 1;
-        }
-
-        .modal-content {
-            background-color: var(--pale-pink);
-            width: 100%;
-            max-width: 480px;
-            max-height: 80vh;
-            border-top-left-radius: 20px;
-            border-top-right-radius: 20px;
-            padding: 16px;
-            overflow-y: auto;
-            transform: translateY(100%);
-            transition: transform 0.3s ease;
-        }
-
-        .modal-overlay.show .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 15px;
-            font-weight: bold;
-            color: var(--accent-pink);
-            margin-bottom: 14px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #ffd1dc;
-        }
-
-        .modal-close-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            color: var(--text-color);
-            padding: 4px 8px;
-        }
-
-        .detail-card {
-            background-color: #ffffff;
-            border: 1px solid #ffd1dc;
-            border-radius: 12px;
-            padding: 14px;
-            margin-bottom: 12px;
-            box-shadow: 0 2px 6px rgba(255, 64, 129, 0.05);
-        }
-
-        .detail-category {
-            font-size: 10px;
-            color: var(--gray-text);
-            margin-bottom: 4px;
-        }
-
-        .detail-title {
-            font-size: 14px;
-            font-weight: bold;
-            color: var(--text-color);
-            margin-bottom: 6px;
-        }
-
-        .detail-desc {
-            font-size: 12px;
-            color: #555555;
-            margin-bottom: 10px;
-            white-space: pre-wrap;
-        }
-
-        .detail-tag {
-            display: inline-block;
-            background-color: var(--light-pink);
-            color: var(--accent-pink);
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-weight: bold;
-        }
-
-        .delete-event-btn {
-            background-color: #ffcccc;
-            border: none;
-            color: #d9534f;
-            font-size: 10px;
-            padding: 4px 8px;
-            border-radius: 6px;
-            cursor: pointer;
-            float: right;
-        }
-
-        /* フッター */
-        .footer {
-            margin-top: 24px;
-            padding-top: 12px;
-            border-top: 1px solid var(--gray-border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 10px;
-            color: var(--gray-text);
-        }
-
-        .secret-admin-trigger {
-            color: #dddddd;
-            cursor: pointer;
-            user-select: none;
-        }
-    </style>
+    /* コピーライト風の隠しログインエリア */
+    .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
+    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; }
+    .admin-footer-btn:hover { opacity: 1; }
+    .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
+  </style>
 </head>
 <body>
 
-    <div class="container" id="mainContainer">
-        <div class="header">
-            <div class="header-title" id="headerTitle">
-                <span>💖 橋本将生 Schedule</span>
-            </div>
-            <div class="header-buttons">
-                <button class="action-btn" id="refreshBtn" onclick="manualReload()" title="最新情報を読み込む">
-                    <span id="refreshIcon">🔄</span> 更新
-                </button>
-                <button class="action-btn" onclick="alert('現在、新しい通知はありません💌')">🔔 通知</button>
-            </div>
-        </div>
+<div class="app-container" id="app-root">
+  <div class="header-top-bar">
+    <div class="app-title-area">
+      <button class="icon-action-btn" id="reload-btn" onclick="forceReloadApp()" title="アプリを更新">🔄</button>
+      <div class="app-title-text">🩷 橋本将生 Schedule</div>
+    </div>
+    <div class="notification-status-badge" onclick="openNotificationDrawer()">
+      🔔 通知 <span class="notification-dot" id="notif-dot"></span>
+    </div>
+  </div>
 
-        <!-- カウントダウンバナー（タップ可能に修正） -->
-        <div class="countdown-banner" onclick="showCountdownDetail()">
-            <div class="countdown-tag">⚡ 映画公開カウントダウン</div>
-            <div class="countdown-text">映画『お姉ちゃんの翠くん』公開まで あと 67 日！ (12/4公開)</div>
-        </div>
+  <div class="today-topic-card" id="today-topic-box">
+    <div class="topic-label" id="topic-label">✨ 映画公開カウントダウン</div>
+    <div class="topic-title" id="topic-text">読み込み中...</div>
+  </div>
 
-        <!-- プロフィールカード（タップ可能に修正） -->
-        <div class="profile-card" onclick="toggleProfile()">
-            <div class="profile-info">
-                <div class="profile-avatar">💖</div>
-                <div>
-                    <div class="profile-name">橋本将生 (Masaki Hashimoto)</div>
-                    <div class="profile-sub">プロフィール＆関連リンクまとめ</div>
-                </div>
-            </div>
-            <button class="profile-toggle" id="profileToggleBtn">開く ▼</button>
+  <div class="profile-card">
+    <div class="profile-summary-bar" onclick="toggleProfileAccordion()">
+      <div class="profile-header">
+        <div class="profile-avatar" id="pf-avatar-icon">🩷</div>
+        <div class="profile-name-area">
+          <h2 id="pf-display-name">橋本将生 (Masaki Hashimoto)</h2>
+          <p id="pf-display-sub">プロフィール＆関連リンクまとめ</p>
         </div>
-
-        <!-- ナビゲーションタブ（切り替え可能に修正） -->
-        <div class="nav-tabs" id="navTabs">
-            <button class="nav-tab active" onclick="switchTab(this, 'MAGAZINE')">MAGAZINE</button>
-            <button class="nav-tab" onclick="switchTab(this, '番組/映画')">番組/映画</button>
-            <button class="nav-tab" onclick="switchTab(this, 'イベント')">イベント</button>
-            <button class="nav-tab" onclick="switchTab(this, 'ココまさき')">ココまさき</button>
-        </div>
-
-        <!-- 管理者専用パネル -->
-        <div class="admin-panel" id="adminPanel">
-            <div class="admin-header">
-                <h3>🛠️ 管理者モード (詳細付き予定の追加)</h3>
-                <button class="admin-logout-btn" onclick="logoutAdmin()">ログアウト</button>
-            </div>
-            <div class="admin-form-group">
-                <input type="number" id="eventDay" placeholder="日付 (例: 1)" min="1" max="31">
-                <input type="text" id="eventCategory" placeholder="カテゴリ (例: 終日 雑誌)">
-                <input type="text" id="eventTitle" placeholder="タイトル (例: 日本映画navi vol.125)">
-                <textarea id="eventDesc" placeholder="詳細説明 (例: 【現場・製作・イベントリポート】\n橋本将生\n映画「お姉ちゃんの翠くん」)" rows="3"></textarea>
-            </div>
-            <button class="add-event-btn" onclick="addEvent()">詳細付きの予定を追加</button>
-        </div>
-
-        <div class="calendar-header">
-            <button class="cal-btn" onclick="alert('前の月のデータはありません')">&lt; 前の月</button>
-            <div class="current-month">2026年10月</div>
-            <div style="display: flex; gap: 4px;">
-                <button class="cal-btn" onclick="alert('今月を表示しています')">今月</button>
-                <button class="cal-btn" onclick="alert('次の月のデータはまだありません')">次の月 &gt;</button>
-            </div>
-        </div>
-
-        <div class="calendar-grid" id="calendarGrid"></div>
-
-        <div class="footer">
-            <span>&copy; Masaki Hashimoto Schedule</span>
-            <span class="secret-admin-trigger" onclick="tryAdminLogin()" title="Admin">⚙</span>
-        </div>
+      </div>
+      <div class="accordion-toggle-icon" id="accordion-toggle-text">開く ▼</div>
     </div>
 
-    <!-- ポップアップ詳細モーダル -->
-    <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
-        <div class="modal-content" id="modalContent">
-            <div class="modal-header">
-                <span id="modalDateTitle">2026年10月1日(木)</span>
-                <button class="modal-close-btn" onclick="closeModalDirect()">×</button>
-            </div>
-            <div id="modalBody"></div>
-        </div>
+    <div class="profile-collapsible-content" id="profile-collapsible-area">
+      <button class="profile-edit-trigger" id="profile-edit-btn" onclick="openProfileEditModal()">✏️ プロフィール編集</button>
+      <div class="profile-links-grid" id="profile-links-container"></div>
+    </div>
+  </div>
+
+  <div class="form-container" id="profile-form">
+    <div style="font-size: 13px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px;">✏️ プロフィール・リンク編集</div>
+    <div class="form-group"><label>名前</label><input type="text" id="input-pf-name" value="橋本将生 (Masaki Hashimoto)"></div>
+    <div class="form-group"><label>サブタイトル</label><input type="text" id="input-pf-sub" value="プロフィール＆関連リンクまとめ"></div>
+    <div class="form-group"><label>アイコン</label><input type="text" id="input-pf-icon" value="🩷"></div>
+    <div class="form-group">
+      <label>リンク設定 (カテゴリ: 名前=URL形式を改行区切り)</label>
+      <textarea id="input-pf-links" rows="8"></textarea>
+    </div>
+    <button class="submit-btn" onclick="saveProfileData()">更新する</button>
+    <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
+  </div>
+
+  <!-- タブ領域（管理者ログイン時のみ「記念日/誕生日」タブが出現） -->
+  <div class="type-tabs" id="type-tabs-container">
+    <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
+    <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
+    <button class="type-tab" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
+    <button class="type-tab" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
+    <!-- 管理者専用タブはJSで動的に追加されます -->
+  </div>
+
+  <div class="filter-section">
+    <div class="filter-row" id="member-filters">
+      <button class="filter-pill active" onclick="toggleMemberFilter('すべて')">すべて</button>
+      <button class="filter-pill" onclick="toggleMemberFilter('橋本将生')">橋本将生</button>
+    </div>
+    <div class="filter-row" id="status-filters"></div>
+  </div>
+
+  <div class="view-mode-bar" id="view-mode-bar-area">
+    <div class="view-switch">
+      <button class="view-btn active" id="view-list-btn" onclick="switchView('list')">リスト</button>
+      <button class="view-btn" id="view-cal-btn" onclick="switchView('calendar')">カレンダー</button>
+    </div>
+  </div>
+
+  <div class="form-container" id="admin-form">
+    <div style="font-size: 13px; font-weight: bold; color: var(--deep-color); margin-bottom: 8px;" id="form-heading-text">📖 スケジュール追加</div>
+    <input type="hidden" id="edit-item-id" value="">
+    
+    <div class="form-group"><label>日付</label><input type="date" id="input-date"></div>
+    <div class="form-group" id="group-end-date" style="display:none;"><label>終了日</label><input type="date" id="input-end-date"></div>
+    <div class="form-group" id="group-time"><label>時間</label><input type="time" id="input-time" value="20:00"></div>
+    <div class="form-group"><label>タイトル</label><input type="text" id="input-title" placeholder="タイトルを入力"></div>
+    <div class="form-group">
+      <label>内容詳細（省略可）</label>
+      <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
+    </div>
+    <div class="form-group">
+      <label>カテゴリ</label>
+      <select id="input-type" onchange="onFormTypeChange()">
+        <option value="MAGAZINE">MAGAZINE</option>
+        <option value="PROGRAM">番組/映画</option>
+        <option value="EVENT">イベント</option>
+        <option value="MASAKI">ココまさき</option>
+        <!-- 管理者の場合のみ「記念日/誕生日」も選択肢に出す -->
+      </select>
+    </div>
+    <div class="form-group">
+      <label>ステータス（複数選択可）</label>
+      <div id="input-status-container" class="checkbox-row-container"></div>
+    </div>
+    <div class="form-group">
+      <label>関連リンク</label><input type="text" id="input-links" placeholder="Amazon:https://...">
+    </div>
+    <button class="submit-btn" id="form-submit-btn" onclick="saveItemData()">登録する</button>
+    <button class="cancel-edit-btn" id="form-cancel-btn" style="display:none;" onclick="resetFormToCreateMode()">キャンセル</button>
+  </div>
+
+  <div id="content-area"></div>
+
+  <div class="footer-admin-area">
+    <!-- 3回連続タップ（隠しコマンド）でログイン判定を行う -->
+    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="handleSecretAdminTap()">© Masaki Schedule</button>
+  </div>
+</div>
+
+<button class="floating-add-btn" id="floating-add-btn" onclick="toggleFormFromFloating()">
+  ＋ 新規スケジュール追加
+</button>
+
+<div class="notification-drawer-overlay" id="notif-drawer" onclick="closeNotificationDrawer(event)">
+  <div class="notification-drawer" onclick="event.stopPropagation()">
+    <div class="notif-header-row">
+      <div class="notif-header-title">通知</div>
+      <div class="notif-header-actions">
+        <button class="notif-read-all-btn" onclick="markAllNotificationsRead()">すべて既読</button>
+        <button class="notif-close-btn" onclick="closeNotificationDrawerDirect()">×</button>
+      </div>
+    </div>
+    <div class="notif-list-container" id="notif-list-container"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="cal-modal" onclick="closeCalendarModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="modal-header-row">
+      <div class="modal-date-title" id="modal-date-title">2026年9月10日(木)</div>
+      <button class="modal-close-btn" onclick="closeCalendarModalDirect()">×</button>
+    </div>
+    <div id="modal-items-container"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="manage-modal-title-area">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">管理ステータス</span>
+        <button class="modal-close-btn" onclick="closeManageModalDirect()">×</button>
+      </div>
+      <div class="manage-modal-main-title" id="manage-modal-item-title">タイトル</div>
     </div>
 
-    <script>
-        let events = {
-            1: [
-                {
-                    category: "終日 雑誌",
-                    title: "日本映画navi vol.125",
-                    desc: "【現場・製作・イベントリポート】\n橋本将生\n映画「お姉ちゃんの翠くん」"
-                },
-                {
-                    category: "終日 雑誌",
-                    title: "J Movie Magazine Vol.135",
-                    desc: "【新作現場レポート】\n橋本将生 『お姉ちゃんの翠くん』"
-                }
-            ]
-        };
+    <div class="manage-section-title">オンライン</div>
+    <div class="manage-sub-label">購入・予約</div>
+    <div id="manage-online-container"></div>
 
-        let isAdmin = false;
-        const ADMIN_PASSWORD = "oshi";
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-online-name" placeholder="">
+      <button class="manage-add-btn" onclick="addCustomReservation('online')">追加</button>
+    </div>
 
-        function manualReload() {
-            const icon = document.getElementById("refreshIcon");
-            icon.classList.add("spin");
-            setTimeout(() => {
-                window.location.reload(true);
-            }, 500);
+    <div class="manage-section-title">店頭</div>
+    <div id="manage-store-container"></div>
+
+    <div class="manage-add-row">
+      <input type="text" class="manage-add-input" id="new-store-name" placeholder="">
+      <button class="manage-add-btn" onclick="addCustomReservation('store')">追加</button>
+    </div>
+    <div class="manage-sub-label">店舗名を入力して複数登録できます</div>
+
+    <button class="manage-save-btn" onclick="saveManageModalData()">保存する</button>
+    <button class="manage-clear-btn" onclick="clearAllReservations()">予約済をすべて解除</button>
+  </div>
+</div>
+
+<script>
+  let currentMainType = "MAGAZINE";
+  let currentMemberFilters = ["すべて"];
+  let currentStatusFilters = ["すべて"];
+  let currentViewMode = "list";
+  let currentCalYear = 2026;
+  let currentCalMonth = 8; // 9月 (0始まり)
+  
+  let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
+
+  // 隠しコマンド（3回連続タップ用）の変数
+  let secretTapCount = 0;
+  let secretTapTimer = null;
+
+  let activeManageItemId = null;
+  let activeCalendarDateStr = null;
+  let activeCalendarEvents = null;
+
+  let profileData = {
+    name: "橋本将生 (Masaki Hashimoto)",
+    sub: "プロフィール＆関連リンクまとめ",
+    icon: "🩷",
+    sections: [
+      {
+        category: "🎬 映画・出演",
+        links: [
+          {name: "映画『お姉ちゃんの翠くん』主演・雪代翠 役 (12/4公開)", url: "#"}
+        ]
+      },
+      {
+        category: "🌟 アンバサダー・CM",
+        links: [
+          {name: "ジェルネイル『Gelee by Decorative Nail』アンバサダー", url: "#"},
+          {name: "森永乳業『クラフト フレッシュモッツァレラ』アンバサダー", url: "#"}
+        ]
+      },
+      {
+        category: "📱 SNS・公式リンク",
+        links: [
+          {name: "Instagram", url: "https://instagram.com"},
+          {name: "FAMILY CLUB web (いまさっきのまさき)", url: "https://www.fc-web.com"},
+          {name: "X (旧Twitter)", url: "https://x.com"}
+        ]
+      }
+    ]
+  };
+
+  let itemsData = [];
+  const savedItems = localStorage.getItem("masaki_schedule_items");
+  if (savedItems) {
+    try { itemsData = JSON.parse(savedItems); } catch (e) { itemsData = []; }
+  }
+
+  let notificationsData = [];
+  const savedNotifs = localStorage.getItem("masaki_schedule_notifications");
+  if (savedNotifs) {
+    try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
+  }
+
+  const defaultReservations = [
+    { name: "Amazon", checked: false, count: 1, type: "online" },
+    { name: "楽天ブックス", checked: false, count: 1, type: "online" },
+    { name: "セブンネット", checked: false, count: 1, type: "online" },
+    { name: "タワーレコード", checked: false, count: 1, type: "online" }
+  ];
+
+  if (itemsData.length === 0) {
+    itemsData = [
+      { 
+        id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
+        links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      },
+      { 
+        id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
+        links: [], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      },
+      { 
+        id: 3, type: "ANNIVERSARY", date: "2026-01-01", endDate: "", time: "", title: "記念日・誕生日サンプル（管理者専用）", desc: "この項目は管理者ログイン中のみ表示されます。", status: ["記念日"], member: "橋本将生", 
+        links: [], 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      }
+    ];
+    saveItemsToStorage();
+  }
+
+  function saveItemsToStorage() {
+    localStorage.setItem("masaki_schedule_items", JSON.stringify(itemsData));
+  }
+
+  function saveNotificationsToStorage() {
+    localStorage.setItem("masaki_schedule_notifications", JSON.stringify(notificationsData));
+    updateNotificationDot();
+  }
+
+  function addNotification(itemId, title) {
+    const now = new Date();
+    const timeStr = `${now.getMonth() + 1}/${now.getDate()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    notificationsData.unshift({
+      id: Date.now(),
+      itemId: itemId,
+      time: timeStr,
+      msg: `新しい予定が登録されました！ [🩷 ${title}]`,
+      unread: true
+    });
+    saveNotificationsToStorage();
+  }
+
+  function updateNotificationDot() {
+    const dot = document.getElementById("notif-dot");
+    if (!dot) return;
+    const hasUnread = notificationsData.some(n => n.unread);
+    if (hasUnread) dot.classList.add("show");
+    else dot.classList.remove("show");
+  }
+
+  function openNotificationDrawer() {
+    renderNotificationList();
+    document.getElementById("notif-drawer").classList.add("open");
+  }
+
+  function closeNotificationDrawerDirect() {
+    document.getElementById("notif-drawer").classList.remove("open");
+  }
+
+  function closeNotificationDrawer(e) {
+    document.getElementById("notif-drawer").classList.remove("open");
+  }
+
+  function markAllNotificationsRead() {
+    notificationsData.forEach(n => n.unread = false);
+    saveNotificationsToStorage();
+    renderNotificationList();
+  }
+
+  function renderNotificationList() {
+    const container = document.getElementById("notif-list-container");
+    container.innerHTML = "";
+
+    if (notificationsData.length === 0) {
+      container.innerHTML = `<div style="text-align:center; color:#888; font-size:12px; padding:20px;">通知はありません</div>`;
+      return;
+    }
+
+    notificationsData.forEach(n => {
+      let card = document.createElement("div");
+      card.className = "notif-card";
+      card.style.borderLeft = n.unread ? "4px solid var(--main-color)" : "1px solid var(--border-color)";
+      card.innerHTML = `
+        <div class="notif-card-top">
+          <span class="notif-card-type">予定</span>
+          <span class="notif-card-time">${n.time}</span>
+        </div>
+        <div class="notif-card-msg">${n.msg}</div>
+        <button class="notif-detail-btn" onclick="jumpFromNotification(${n.itemId}, '${encodeURIComponent(n.msg)}')">詳細を見る</button>
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function jumpFromNotification(itemId, encodedMsg) {
+    closeNotificationDrawerDirect();
+    
+    let item = null;
+    if (itemId) {
+      item = itemsData.find(i => i.id === itemId);
+    }
+
+    if (!item && encodedMsg) {
+      try {
+        let msg = decodeURIComponent(encodedMsg);
+        let match = msg.match(/\[🩷\s*(.*?)\]/);
+        let targetTitle = match ? match[1] : msg;
+        
+        item = itemsData.find(i => targetTitle.includes(i.title) || i.title.includes(targetTitle));
+      } catch(e) {}
+    }
+
+    if (!item) {
+      alert("該当するスケジュールが見つかりませんでした。");
+      return;
+    }
+
+    switchMainType(item.type);
+
+    setTimeout(() => {
+      if (item.type !== "MASAKI") {
+        switchView('list');
+      }
+
+      const detailEl = document.getElementById(`item-detail-${item.id}`);
+      if (detailEl) {
+        detailEl.classList.add("open");
+      }
+
+      let cardEl = document.getElementById(`item-detail-${item.id}`);
+      if (cardEl) {
+        let parentMonthCard = cardEl.closest('.month-accordion-card');
+        if (parentMonthCard) {
+          parentMonthCard.classList.add('open');
         }
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
+  }
 
-        // カウントダウンバナーをタップしたときの処理
-        function showCountdownDetail() {
-            const overlay = document.getElementById("modalOverlay");
-            document.getElementById("modalDateTitle").innerText = "⚡ 映画公開情報";
-            document.getElementById("modalBody").innerHTML = `
-                <div class="detail-card">
-                    <div class="detail-category">映画情報</div>
-                    <div class="detail-title">『お姉ちゃんの翠くん』</div>
-                    <div class="detail-desc">公開日: 2026年12月4日(金)\n出演: 橋本将生 ほか\n\n公開まであと67日！お楽しみに✨</div>
-                    <span class="detail-tag">特報</span>
-                </div>
-            `;
-            overlay.classList.add("show");
-        }
+  window.addEventListener('load', () => {
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => { btn.classList.remove("spinning"); }, 600);
+    }
 
-        // プロフィールカードをタップしたときの処理（開閉）
-        let profileOpen = false;
-        function toggleProfile() {
-            profileOpen = !profileOpen;
-            const btn = document.getElementById("profileToggleBtn");
-            const overlay = document.getElementById("modalOverlay");
-            
-            if (profileOpen) {
-                btn.innerText = "閉じる ▲";
-                document.getElementById("modalDateTitle").innerText = "💖 プロフィール＆リンク";
-                document.getElementById("modalBody").innerHTML = `
-                    <div class="detail-card">
-                        <div class="detail-category">プロフィール</div>
-                        <div class="detail-title">橋本将生 (Masaki Hashimoto)</div>
-                        <div class="detail-desc">俳優として活躍中。映画「お姉ちゃんの翠くん」などに出演。</div>
-                        <span class="detail-tag">Official</span>
-                    </div>
-                    <div class="detail-card">
-                        <div class="detail-category">関連リンク</div>
-                        <div class="detail-title">公式SNS・公式サイト</div>
-                        <div class="detail-desc">最新情報は各公式SNSをチェック！</div>
-                        <span class="detail-tag">SNS</span>
-                    </div>
-                `;
-                overlay.classList.add("show");
-            } else {
-                btn.innerText = "開く ▼";
-                overlay.classList.remove("show");
-            }
-        }
+    applyAdminLoginStateUI();
+    renderProfileCard();
+    updateStatusFilterPills();
+    updateFormStatusOptions();
+    updateFormVisibilityBytype();
+    updateTodayTopic();
+    updateNotificationDot();
+  });
 
-        // タブを切り替えたときの処理
-        function switchTab(element, tabName) {
-            const tabs = document.querySelectorAll(".nav-tab");
-            tabs.forEach(t => t.classList.remove("active"));
-            element.classList.add("active");
-            
-            // タブに応じた簡易ポップアップ表示
-            const overlay = document.getElementById("modalOverlay");
-            document.getElementById("modalDateTitle").innerText = `📂 ${tabName} カテゴリ`;
-            document.getElementById("modalBody").innerHTML = `
-                <div class="detail-card" style="text-align: center; padding: 20px;">
-                    <div class="detail-title">${tabName} のスケジュール</div>
-                    <div class="detail-desc" style="margin-top: 8px;">現在表示されている月の ${tabName} 関連の予定をまとめています。</div>
-                </div>
-            `;
-            overlay.classList.add("show");
-        }
+  function forceReloadApp() {
+    const btn = document.getElementById("reload-btn");
+    if (btn) {
+      btn.classList.add("spinning");
+      setTimeout(() => { btn.classList.remove("spinning"); }, 600);
+    }
 
-        function renderCalendar() {
-            const grid = document.getElementById("calendarGrid");
-            
-            let gridHTML = `
-                <div class="weekdays" style="color: #ff4081;">日</div>
-                <div class="weekdays">月</div>
-                <div class="weekdays">火</div>
-                <div class="weekdays">水</div>
-                <div class="weekdays">木</div>
-                <div class="weekdays">金</div>
-                <div class="weekdays">土</div>
-            `;
+    if (window.caches) {
+      caches.keys().then(names => { names.forEach(name => { caches.delete(name); }); });
+    }
+    setTimeout(() => { window.location.reload(true); }, 400);
+  }
 
-            for (let i = 0; i < 4; i++) {
-                gridHTML += `<div class="day-cell" style="opacity: 0.3; background-color: #fafafa; pointer-events: none;"></div>`;
-            }
+  function toggleProfileAccordion() {
+    const area = document.getElementById("profile-collapsible-area");
+    const toggleText = document.getElementById("accordion-toggle-text");
+    if (area.classList.contains("open")) {
+      area.classList.remove("open");
+      toggleText.textContent = "開く ▼";
+    } else {
+      area.classList.add("open");
+      toggleText.textContent = "閉じる ▲";
+    }
+  }
 
-            for (let day = 1; day <= 31; day++) {
-                let eventHtml = "";
-                if (events[day]) {
-                    events[day].forEach((ev) => {
-                        eventHtml += `<div class="event-badge">${ev.title}</div>`;
-                    });
-                }
+  function renderProfileCard() {
+    document.getElementById("pf-display-name").textContent = profileData.name;
+    document.getElementById("pf-display-sub").textContent = profileData.sub;
+    document.getElementById("pf-avatar-icon").textContent = profileData.icon;
 
-                gridHTML += `
-                    <div class="day-cell" data-day="${day}">
-                        <span class="day-number">${day}</span>
-                        ${eventHtml}
-                    </div>
-                `;
-            }
+    const container = document.getElementById("profile-links-container");
+    container.innerHTML = "";
 
-            grid.innerHTML = gridHTML;
-        }
+    profileData.sections.forEach(sec => {
+      let block = document.createElement("div");
+      block.className = "profile-section-block";
+      let titleDiv = document.createElement("div");
+      titleDiv.className = "profile-section-title";
+      titleDiv.textContent = sec.category;
+      block.appendChild(titleDiv);
 
-        document.getElementById("calendarGrid").addEventListener("click", function(e) {
-            const cell = e.target.closest(".day-cell");
-            if (cell && cell.dataset.day) {
-                openDayModal(cell.dataset.day);
-            }
+      let wrapDiv = document.createElement("div");
+      wrapDiv.className = "profile-link-buttons-wrap";
+
+      sec.links.forEach(l => {
+        let a = document.createElement("a");
+        a.href = l.url; a.target = "_blank"; a.className = "profile-link-btn"; a.textContent = l.name;
+        wrapDiv.appendChild(a);
+      });
+      block.appendChild(wrapDiv);
+      container.appendChild(block);
+    });
+  }
+
+  function openProfileEditModal() {
+    document.getElementById("input-pf-name").value = profileData.name;
+    document.getElementById("input-pf-sub").value = profileData.sub;
+    document.getElementById("input-pf-icon").value = profileData.icon;
+
+    let textLines = [];
+    profileData.sections.forEach(sec => {
+      let linksStr = sec.links.map(l => `${l.name}=${l.url}`).join(", ");
+      textLines.push(`${sec.category}: ${linksStr}`);
+    });
+    document.getElementById("input-pf-links").value = textLines.join("\n");
+    document.getElementById("profile-form").style.display = "block";
+  }
+
+  function saveProfileData() {
+    profileData.name = document.getElementById("input-pf-name").value;
+    profileData.sub = document.getElementById("input-pf-sub").value;
+    profileData.icon = document.getElementById("input-pf-icon").value;
+
+    let rawText = document.getElementById("input-pf-links").value;
+    let newSections = [];
+
+    rawText.split("\n").forEach(line => {
+      line = line.trim();
+      if (!line) return;
+      if (line.includes(":")) {
+        let colonIdx = line.indexOf(":");
+        let cat = line.substring(0, colonIdx).trim();
+        let rest = line.substring(colonIdx + 1).trim();
+        let links = [];
+
+        rest.split(",").forEach(itemPart => {
+          itemPart = itemPart.trim();
+          if (!itemPart) return;
+          if (itemPart.includes("=")) {
+            let eqIdx = itemPart.indexOf("=");
+            links.push({ name: itemPart.substring(0, eqIdx).trim(), url: itemPart.substring(eqIdx + 1).trim() });
+          } else {
+            links.push({ name: itemPart, url: itemPart });
+          }
+        });
+        newSections.push({ category: cat, links: links });
+      }
+    });
+
+    if (newSections.length > 0) profileData.sections = newSections;
+    renderProfileCard();
+    document.getElementById("profile-form").style.display = "none";
+    alert("プロフィールを更新しました！");
+  }
+
+  // タブの描画・切り替え（管理者ログイン時は「記念日/誕生日」タブも表示）
+  function renderTypeTabs() {
+    const tabsContainer = document.getElementById("type-tabs-container");
+    tabsContainer.innerHTML = `
+      <button class="type-tab ${currentMainType === 'MAGAZINE' ? 'active' : ''}" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
+      <button class="type-tab ${currentMainType === 'PROGRAM' ? 'active' : ''}" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
+      <button class="type-tab ${currentMainType === 'EVENT' ? 'active' : ''}" id="tab-event" onclick="switchMainType('EVENT')">イベント</button>
+      <button class="type-tab ${currentMainType === 'MASAKI' ? 'active' : ''}" id="tab-masaki" onclick="switchMainType('MASAKI')">ココまさき</button>
+    `;
+
+    if (isAdminLoggedIn) {
+      let annivTab = document.createElement("button");
+      annivTab.className = `type-tab ${currentMainType === 'ANNIVERSARY' ? 'active' : ''}`;
+      annivTab.id = "tab-anniversary";
+      annivTab.textContent = "記念日/誕生日";
+      annivTab.onclick = () => switchMainType('ANNIVERSARY');
+      tabsContainer.appendChild(annivTab);
+    }
+  }
+
+  function updateFormSelectOptions() {
+    const select = document.getElementById("input-type");
+    if (!select) return;
+    
+    let optionsHtml = `
+      <option value="MAGAZINE">MAGAZINE</option>
+      <option value="PROGRAM">番組/映画</option>
+      <option value="EVENT">イベント</option>
+      <option value="MASAKI">ココまさき</option>
+    `;
+    if (isAdminLoggedIn) {
+      optionsHtml += `<option value="ANNIVERSARY">記念日/誕生日</option>`;
+    }
+    select.innerHTML = optionsHtml;
+    select.value = currentMainType;
+  }
+
+  function switchMainType(type) {
+    currentMainType = type;
+    currentStatusFilters = ["すべて"];
+    renderTypeTabs();
+    
+    const viewBar = document.getElementById("view-mode-bar-area");
+    if (type === "MASAKI" || type === "ANNIVERSARY") {
+      viewBar.style.display = "none";
+    } else {
+      viewBar.style.display = "flex";
+    }
+
+    updateStatusFilterPills();
+    if (!document.getElementById("edit-item-id").value) {
+      document.getElementById("input-type").value = type;
+      updateFormStatusOptions();
+      updateFormVisibilityBytype();
+    }
+    render();
+  }
+
+  function onFormTypeChange() {
+    updateFormStatusOptions();
+    updateFormVisibilityBytype();
+  }
+
+  function updateFormVisibilityBytype() {
+    const typeSelect = document.getElementById("input-type");
+    const targetType = typeSelect ? typeSelect.value : currentMainType;
+    document.getElementById("group-time").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
+    document.getElementById("group-end-date").style.display = (targetType === "MAGAZINE" || targetType === "MASAKI" || targetType === "ANNIVERSARY") ? "none" : "block";
+  }
+
+  function updateStatusFilterPills() {
+    const container = document.getElementById("status-filters");
+    container.innerHTML = "";
+    let statuses = ["すべて"];
+    if (currentMainType === "MAGAZINE") {
+      statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
+    } else if (currentMainType === "PROGRAM") {
+      statuses.push("放送予定", "映画公開", "ゲスト出演", "レギュラー");
+    } else if (currentMainType === "EVENT") {
+      statuses.push("イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ");
+    } else if (currentMainType === "MASAKI") {
+      statuses.push("話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他");
+    } else if (currentMainType === "ANNIVERSARY") {
+      statuses.push("記念日", "誕生日", "その他");
+    }
+    
+    statuses.forEach(st => {
+      const btn = document.createElement("button");
+      btn.className = "filter-pill" + (currentStatusFilters.includes(st) ? " active" : "");
+      btn.textContent = st;
+      btn.onclick = () => toggleStatusFilter(st);
+      container.appendChild(btn);
+    });
+  }
+
+  function updateFormStatusOptions(selectedStatuses = []) {
+    const typeSelect = document.getElementById("input-type");
+    const targetType = typeSelect ? typeSelect.value : currentMainType;
+    const statusContainer = document.getElementById("input-status-container");
+    if (!statusContainer) return;
+    
+    statusContainer.innerHTML = "";
+    let options = [];
+    if (targetType === "MAGAZINE") {
+      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売"];
+    } else if (targetType === "PROGRAM") {
+      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー"];
+    } else if (targetType === "EVENT") {
+      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ"];
+    } else if (targetType === "MASAKI") {
+      options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
+    } else if (targetType === "ANNIVERSARY") {
+      options = ["記念日", "誕生日", "その他"];
+    }
+
+    let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
+
+    options.forEach(opt => {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "form-status-checkbox";
+      checkbox.value = opt;
+      if (selectedArr.includes(opt)) checkbox.checked = true;
+
+      label.appendChild(checkbox);
+      label.appendChild(document.createTextNode(opt));
+      statusContainer.appendChild(label);
+    });
+  }
+
+  function toggleMemberFilter(member) {
+    if (member === "すべて") {
+      currentMemberFilters = ["すべて"];
+    } else {
+      if (currentMemberFilters.includes("すべて")) currentMemberFilters = [];
+      let idx = currentMemberFilters.indexOf(member);
+      if (idx > -1) currentMemberFilters.splice(idx, 1);
+      else currentMemberFilters.push(member);
+      if (currentMemberFilters.length === 0) currentMemberFilters = ["すべて"];
+    }
+    updateMultiPills("member-filters", currentMemberFilters);
+    render();
+  }
+
+  function toggleStatusFilter(status) {
+    if (status === "すべて") {
+      currentStatusFilters = ["すべて"];
+    } else {
+      if (currentStatusFilters.includes("すべて")) currentStatusFilters = [];
+      let idx = currentStatusFilters.indexOf(status);
+      if (idx > -1) currentStatusFilters.splice(idx, 1);
+      else currentStatusFilters.push(status);
+      if (currentStatusFilters.length === 0) currentStatusFilters = ["すべて"];
+    }
+    updateStatusFilterPills();
+    render();
+  }
+
+  function updateMultiPills(containerId, activeList) {
+    const container = document.getElementById(containerId);
+    Array.from(container.children).forEach(btn => {
+      if (activeList.includes(btn.textContent)) btn.classList.add("active");
+      else btn.classList.remove("active");
+    });
+  }
+
+  function switchView(mode) {
+    currentViewMode = mode;
+    document.getElementById("view-list-btn").classList.toggle("active", mode === "list");
+    document.getElementById("view-cal-btn").classList.toggle("active", mode === "calendar");
+    render();
+  }
+
+  function updateTodayTopic() {
+    const releaseDate = new Date("2026-12-04T00:00:00");
+    const today = new Date();
+    releaseDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = releaseDate - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    const topicEl = document.getElementById("topic-text");
+    if (diffDays > 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』公開まで あと ${diffDays} 日！ (12/4公開)`;
+    } else if (diffDays === 0) {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』本日公開！`;
+    } else {
+      topicEl.textContent = `映画『お姉ちゃんの翠くん』大ヒット公開中！`;
+    }
+  }
+
+  function applyAdminLoginStateUI() {
+    const btn = document.getElementById("admin-toggle-btn");
+    const floatingBtn = document.getElementById("floating-add-btn");
+    const profileEditBtn = document.getElementById("profile-edit-btn");
+
+    if (isAdminLoggedIn) {
+      if (btn) {
+        btn.textContent = "© Masaki Schedule (ログアウト)";
+        btn.classList.add("logged-in");
+      }
+      if (floatingBtn) floatingBtn.classList.add("show");
+      if (profileEditBtn) profileEditBtn.classList.add("show");
+    } else {
+      if (btn) {
+        btn.textContent = "© Masaki Schedule";
+        btn.classList.remove("logged-in");
+      }
+      if (floatingBtn) floatingBtn.classList.remove("show");
+      if (profileEditBtn) profileEditBtn.classList.remove("show");
+      document.getElementById("admin-form").style.display = "none";
+      // ログアウト時に管理専用タブが開いていた場合はMAGAZINEに戻す
+      if (currentMainType === "ANNIVERSARY") {
+        currentMainType = "MAGAZINE";
+      }
+    }
+    renderTypeTabs();
+    updateFormSelectOptions();
+  }
+
+  // 隠しコマンド（3回連続タップ）の処理
+  function handleSecretAdminTap() {
+    if (isAdminLoggedIn) {
+      checkAndToggleForm();
+      return;
+    }
+
+    secretTapCount++;
+    clearTimeout(secretTapTimer);
+
+    secretTapTimer = setTimeout(() => {
+      secretTapCount = 0;
+    }, 500);
+
+    if (secretTapCount >= 3) {
+      secretTapCount = 0;
+      clearTimeout(secretTapTimer);
+      checkAndToggleForm();
+    }
+  }
+
+  function checkAndToggleForm() {
+    if (!isAdminLoggedIn) {
+      const pwd = prompt("管理者パスワードを入力してください：");
+      if (pwd === "masaki123") {
+        isAdminLoggedIn = true;
+        sessionStorage.setItem("masaki_admin_logged_in", "true");
+        applyAdminLoginStateUI();
+        alert("管理者としてログインしました！");
+        render();
+      } else {
+        if (pwd !== null) alert("パスワードが違います");
+        return;
+      }
+    } else {
+      if (confirm("ログアウトしますか？")) {
+        isAdminLoggedIn = false;
+        sessionStorage.removeItem("masaki_admin_logged_in");
+        applyAdminLoginStateUI();
+        alert("ログアウトしました");
+        render();
+      }
+      return;
+    }
+    const form = document.getElementById("admin-form");
+    form.style.display = form.style.display === "block" ? "none" : "block";
+    if (form.style.display === "block" && !document.getElementById("edit-item-id").value) resetFormToCreateMode();
+  }
+
+  function toggleFormFromFloating() {
+    const form = document.getElementById("admin-form");
+    if (form.style.display !== "block") {
+      resetFormToCreateMode();
+      form.style.display = "block";
+    }
+    form.scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function resetFormToCreateMode() {
+    document.getElementById("edit-item-id").value = "";
+    document.getElementById("form-heading-text").textContent = "📖 スケジュール追加";
+    document.getElementById("form-submit-btn").textContent = "登録する";
+    document.getElementById("form-cancel-btn").style.display = "none";
+    
+    const now = new Date();
+    document.getElementById("input-date").value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    document.getElementById("input-title").value = "";
+    document.getElementById("input-desc").value = "";
+    updateFormStatusOptions();
+    updateFormVisibilityBytype();
+  }
+
+  function deleteItem(id) {
+    if (!isAdminLoggedIn) return;
+    if (confirm("削除しますか？")) {
+      itemsData = itemsData.filter(i => i.id !== id);
+      saveItemsToStorage();
+      render();
+    }
+  }
+
+  function toggleItemDetail(id) {
+    const detailEl = document.getElementById(`item-detail-${id}`);
+    if (detailEl) detailEl.classList.toggle("open");
+  }
+
+  function toggleMonthAccordion(cardEl) {
+    cardEl.classList.toggle("open");
+  }
+
+  function openManageModal(id) {
+    activeManageItemId = id;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("manage-modal-item-title").textContent = item.title;
+    renderManageLists(item);
+    document.getElementById("manage-modal").classList.add("open");
+  }
+
+  function closeManageModalDirect() {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function closeManageModal(e) {
+    document.getElementById("manage-modal").classList.remove("open");
+  }
+
+  function renderManageLists(item) {
+    const onlineContainer = document.getElementById("manage-online-container");
+    const storeContainer = document.getElementById("manage-store-container");
+    onlineContainer.innerHTML = "";
+    storeContainer.innerHTML = "";
+
+    if (!item.reservations) item.reservations = JSON.parse(JSON.stringify(defaultReservations));
+
+    let hasStore = false;
+
+    item.reservations.forEach((res, index) => {
+      let row = document.createElement("div");
+      row.className = "manage-row-card";
+      row.innerHTML = `
+        <div class="manage-row-left">
+          <input type="checkbox" id="res-check-${index}" ${res.checked ? 'checked' : ''} onchange="updateResCheck(${index}, this.checked)">
+          <label for="res-check-${index}" style="cursor:pointer;">${res.name}</label>
+        </div>
+        <div class="manage-counter-wrap">
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, -1)">-</button>
+          <div class="manage-counter-num" id="res-count-${index}">${res.count}</div>
+          <button class="manage-counter-btn" onclick="changeResCount(${index}, 1)">+</button>
+        </div>
+      `;
+
+      if (res.type === "store") {
+        hasStore = true;
+        storeContainer.appendChild(row);
+      } else {
+        onlineContainer.appendChild(row);
+      }
+    });
+
+    if (!hasStore) {
+      storeContainer.innerHTML = `<div style="font-size:11px; color:#888; padding:4px 0;">登録された店舗はありません</div>`;
+    }
+  }
+
+  function updateResCheck(index, checked) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) item.reservations[index].checked = checked;
+  }
+
+  function changeResCount(index, delta) {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item && item.reservations[index]) {
+      item.reservations[index].count = Math.max(1, item.reservations[index].count + delta);
+      document.getElementById(`res-count-${index}`).textContent = item.reservations[index].count;
+    }
+  }
+
+  function addCustomReservation(type) {
+    const inputId = type === 'online' ? 'new-online-name' : 'new-store-name';
+    const inputEl = document.getElementById(inputId);
+    const val = inputEl.value.trim();
+    if (!val) return;
+
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.push({ name: val, checked: true, count: 1, type: type });
+      inputEl.value = "";
+      renderManageLists(item);
+    }
+  }
+
+  function saveManageModalData() {
+    saveItemsToStorage();
+    closeManageModalDirect();
+    render();
+  }
+
+  function clearAllReservations() {
+    const item = itemsData.find(i => i.id === activeManageItemId);
+    if (item) {
+      item.reservations.forEach(r => r.checked = false);
+      renderManageLists(item);
+    }
+  }
+
+  function parseLinks(inputStr) {
+    if (!inputStr || !inputStr.trim()) return [];
+    let result = [];
+    inputStr.split(",").forEach(part => {
+      part = part.trim();
+      if (!part) return;
+      if (part.includes(":")) {
+        let colonIdx = part.indexOf(":");
+        result.push({ name: part.substring(0, colonIdx).trim(), url: part.substring(colonIdx + 1).trim() });
+      } else {
+        result.push({ name: "リンク", url: part });
+      }
+    });
+    return result;
+  }
+
+  function saveItemData() {
+    const editId = document.getElementById("edit-item-id").value;
+    const date = document.getElementById("input-date").value;
+    const type = document.getElementById("input-type").value;
+    const title = document.getElementById("input-title").value;
+    const desc = document.getElementById("input-desc").value;
+    const status = Array.from(document.querySelectorAll('input[name="form-status-checkbox"]:checked')).map(cb => cb.value);
+
+    if (!date || !title) { alert("日付とタイトルを入力してください"); return; }
+    if (status.length === 0) { alert("ステータスを1つ以上選択してください"); return; }
+
+    const parsedLinks = parseLinks(document.getElementById("input-links").value);
+
+    if (editId) {
+      const item = itemsData.find(i => i.id == editId);
+      if (item) {
+        item.date = date; item.title = title; item.desc = desc; item.type = type; item.status = status; item.links = parsedLinks;
+      }
+      alert("更新しました！");
+    } else {
+      const newId = Date.now();
+      itemsData.push({ 
+        id: newId, type, date, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
+        reservations: JSON.parse(JSON.stringify(defaultReservations))
+      });
+      addNotification(newId, title);
+      alert("追加しました！ベルマークから通知を確認できます！");
+    }
+
+    saveItemsToStorage();
+    document.getElementById("admin-form").style.display = "none";
+    resetFormToCreateMode();
+    render();
+  }
+
+  function filterItems() {
+    return itemsData.filter(item => {
+      if (item.type !== currentMainType) return false;
+      if (!currentStatusFilters.includes("すべて")) {
+        let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+        if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
+      }
+      return true;
+    });
+  }
+
+  function render() {
+    const container = document.getElementById("content-area");
+    container.innerHTML = "";
+    let filtered = filterItems();
+
+    if (currentMainType === "MASAKI" || currentMainType === "ANNIVERSARY") {
+      renderMonthAccordionListView(filtered, container);
+    } else {
+      if (currentViewMode === "calendar") {
+        renderCalendarView(filtered, container);
+      } else {
+        renderNormalListView(filtered, container);
+      }
+    }
+  }
+
+  function createCardHtml(item) {
+    let purchaseHtml = "";
+    let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+
+    if (item.type === "MAGAZINE") {
+      let checkedCount = (item.reservations || []).filter(r => r.checked).length;
+      let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
+      let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
+      purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
+    }
+
+    let statusTagsHtml = itemStatuses.map(st => `<span class="member-tag">${st}</span>`).join(" ");
+    let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
+
+    return `
+      <div class="item-card">
+        <div class="item-summary-bar" onclick="toggleItemDetail(${item.id})">
+          <div class="item-header-row">
+            <div class="item-date-text">📅 ${item.date}</div>
+            ${purchaseHtml}
+          </div>
+          <div class="item-title">${item.title} ▼</div>
+        </div>
+        <div class="item-collapsible-detail" id="item-detail-${item.id}">
+          ${item.desc ? `<div class="item-content-desc">${item.desc}</div>` : ''}
+          ${linksHtml ? `<div class="item-links-row">${linksHtml}</div>` : ''}
+        </div>
+        <div class="item-footer-row">
+          <div class="badges-left">
+            ${statusTagsHtml}
+            <span class="member-tag">橋本将生</span>
+          </div>
+          <div class="item-action-icons ${isAdminLoggedIn ? 'show' : ''}">
+            <button class="icon-btn edit-icon-btn" onclick="editItem(${item.id})">編集✏️</button>
+            <button class="icon-btn delete-icon-btn" onclick="deleteItem(${item.id})">削除✕</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function editItem(id) {
+    if (!isAdminLoggedIn) return;
+    const item = itemsData.find(i => i.id === id);
+    if (!item) return;
+
+    document.getElementById("edit-item-id").value = item.id;
+    document.getElementById("input-date").value = item.date;
+    document.getElementById("input-title").value = item.title;
+    document.getElementById("input-desc").value = item.desc || "";
+    document.getElementById("input-type").value = item.type;
+    updateFormStatusOptions(item.status);
+    updateFormVisibilityBytype();
+
+    document.getElementById("input-links").value = (item.links || []).map(l => `${l.name}:${l.url}`).join(", ");
+    document.getElementById("form-heading-text").textContent = "✏️ スケジュール編集";
+    document.getElementById("form-submit-btn").textContent = "更新する";
+    document.getElementById("form-cancel-btn").style.display = "block";
+    document.getElementById("admin-form").style.display = "block";
+    document.getElementById("admin-form").scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function renderNormalListView(data, container) {
+    if (data.length === 0) {
+      container.innerHTML = `<div class="no-data">該当する予定はありません</div>`;
+      return;
+    }
+    data.sort((a, b) => a.date.localeCompare(b.date));
+    data.forEach(item => {
+      let wrapper = document.createElement("div");
+      wrapper.innerHTML = createCardHtml(item);
+      container.appendChild(wrapper.firstElementChild);
+    });
+  }
+
+  function renderMonthAccordionListView(data, container) {
+    if (data.length === 0) { 
+      container.innerHTML = `<div class="no-data">該当する予定はありません</div>`; 
+      return; 
+    }
+
+    let groups = {};
+    data.forEach(item => {
+      let d = new Date(item.date);
+      if (isNaN(d)) return;
+      let y = d.getFullYear();
+      let m = d.getMonth() + 1;
+      let key = `${y}年${m}月`;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(item);
+    });
+
+    let sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a, 'ja', { numeric: true }));
+
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}年${now.getMonth() + 1}月`;
+
+    sortedKeys.forEach(key => {
+      let monthItems = groups[key];
+      monthItems.sort((a, b) => a.date.localeCompare(b.date));
+
+      let card = document.createElement("div");
+      card.className = "month-accordion-card";
+      
+      if (key === currentMonthKey) {
+        card.classList.add("open");
+      }
+
+      let header = document.createElement("div");
+      header.className = "month-accordion-header";
+      header.textContent = key;
+      header.onclick = () => toggleMonthAccordion(card);
+      card.appendChild(header);
+
+      let body = document.createElement("div");
+      body.className = "month-accordion-body";
+
+      monthItems.forEach(item => {
+        let wrapper = document.createElement("div");
+        wrapper.innerHTML = createCardHtml(item);
+        body.appendChild(wrapper.firstElementChild);
+      });
+
+      card.appendChild(body);
+      container.appendChild(card);
+    });
+  }
+
+  function renderCalendarView(data, container) {
+    const navBar = document.createElement("div");
+    navBar.className = "calendar-nav-bar";
+    navBar.innerHTML = `
+      <button class="cal-nav-btn" onclick="changeCalendarMonth(-1)">＜ 前の月</button>
+      <div class="cal-current-label">${currentCalYear}年${currentCalMonth + 1}月</div>
+      <div style="display:flex; gap:6px; align-items:center;">
+        <button class="cal-today-small-btn" onclick="goCurrentMonth()">今月</button>
+        <button class="cal-nav-btn" onclick="changeCalendarMonth(1)">次の月 ＞</button>
+      </div>
+    `;
+    container.appendChild(navBar);
+
+    const calWrapper = document.createElement("div");
+    calWrapper.className = "calendar-grid";
+    ["日", "月", "火", "水", "木", "金", "土"].forEach(w => {
+      let wEl = document.createElement("div");
+      wEl.style.textAlign = "center"; wEl.style.fontWeight = "bold"; wEl.style.fontSize = "10px"; wEl.style.color = "var(--deep-color)";
+      wEl.textContent = w;
+      calWrapper.appendChild(wEl);
+    });
+
+    const firstDayIndex = new Date(currentCalYear, currentCalMonth, 1).getDay();
+    const totalDays = new Date(currentCalYear, currentCalMonth + 1, 0).getDate();
+
+    for (let i = 0; i < firstDayIndex; i++) {
+      calWrapper.appendChild(document.createElement("div"));
+    }
+
+    for (let day = 1; day <= totalDays; day++) {
+      const cell = document.createElement("div");
+      cell.className = "cal-cell";
+      
+      const today = new Date();
+      if (day === today.getDate() && currentCalMonth === today.getMonth() && currentCalYear === today.getFullYear()) {
+        cell.classList.add("is-today");
+      }
+
+      const numEl = document.createElement("div");
+      numEl.className = "cal-day-num";
+      numEl.textContent = day;
+      cell.appendChild(numEl);
+
+      const dayStr = `${currentCalYear}-${String(currentCalMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const dayEvents = data.filter(item => item.date === dayStr);
+
+      if (dayEvents.length > 0) {
+        cell.classList.add("has-event");
+        dayEvents.forEach(ev => {
+          const evEl = document.createElement("span");
+          evEl.className = "cal-event-title";
+          evEl.textContent = ev.title;
+          cell.appendChild(evEl);
         });
 
-        function openDayModal(day) {
-            const overlay = document.getElementById("modalOverlay");
-            const dateTitle = document.getElementById("modalDateTitle");
-            const modalBody = document.getElementById("modalBody");
+        cell.onclick = () => { openCalendarModal(dayStr, dayEvents); };
+      }
 
-            dateTitle.innerText = `2026年10月${day}日`;
-            modalBody.innerHTML = "";
+      calWrapper.appendChild(cell);
+    }
+    container.appendChild(calWrapper);
+  }
 
-            if (!events[day] || events[day].length === 0) {
-                modalBody.innerHTML = `<div style="text-align: center; color: var(--gray-text); padding: 20px; font-size: 13px;">この日の予定はありません</div>`;
-            } else {
-                events[day].forEach((ev, index) => {
-                    let deleteBtnHtml = isAdmin ? `<button class="delete-event-btn" onclick="deleteEvent(${day}, ${index}, event)">削除</button>` : "";
-                    
-                    modalBody.innerHTML += `
-                        <div class="detail-card">
-                            ${deleteBtnHtml}
-                            <div class="detail-category">${ev.category || "終日"}</div>
-                            <div class="detail-title">${ev.title}</div>
-                            <div class="detail-desc">${ev.desc || ""}</div>
-                            <span class="detail-tag">橋本</span>
-                        </div>
-                    `;
-                });
-            }
+  function changeCalendarMonth(delta) {
+    currentCalMonth += delta;
+    if (currentCalMonth > 11) {
+      currentCalMonth = 0;
+      currentCalYear++;
+    } else if (currentCalMonth < 0) {
+      currentCalMonth = 11;
+      currentCalYear--;
+    }
+    render();
+  }
 
-            overlay.classList.add("show");
-        }
+  function goCurrentMonth() {
+    const now = new Date();
+    currentCalYear = now.getFullYear();
+    currentCalMonth = now.getMonth();
+    render();
+  }
 
-        function closeModal(e) {
-            if (e.target.id === "modalOverlay") {
-                document.getElementById("modalOverlay").classList.remove("show");
-                profileOpen = false;
-                document.getElementById("profileToggleBtn").innerText = "開く ▼";
-            }
-        }
+  function openCalendarModal(dateStr, events) {
+    activeCalendarDateStr = dateStr;
+    activeCalendarEvents = events;
 
-        function closeModalDirect() {
-            document.getElementById("modalOverlay").classList.remove("show");
-            profileOpen = false;
-            document.getElementById("profileToggleBtn").innerText = "開く ▼";
-        }
+    const [y, m, d] = dateStr.split("-");
+    const dateObj = new Date(y, m - 1, d);
+    const weekdays = ["日", "月", "火", "水", "木", "金", "土"];
+    const wday = weekdays[dateObj.getDay()];
 
-        function tryAdminLogin() {
-            if (isAdmin) return;
-            let pass = prompt("パスワードを入力してください:");
-            if (pass === ADMIN_PASSWORD) {
-                isAdmin = true;
-                document.getElementById("adminPanel").classList.add("show");
-                alert("管理者としてログインしました。");
-                renderCalendar();
-            } else if (pass !== null) {
-                alert("パスワードが違います。");
-            }
-        }
+    document.getElementById("modal-date-title").textContent = `${y}年${parseInt(m)}月${parseInt(d)}日(${wday})`;
 
-        function logoutAdmin() {
-            isAdmin = false;
-            document.getElementById("adminPanel").classList.remove("show");
-            alert("ログアウトしました。");
-            renderCalendar();
-        }
+    const itemsContainer = document.getElementById("modal-items-container");
+    itemsContainer.innerHTML = "";
+    events.forEach(item => {
+      let wrapper = document.createElement("div");
+      wrapper.innerHTML = createCardHtml(item);
+      itemsContainer.appendChild(wrapper.firstElementChild);
+    });
 
-        let clickCount = 0;
-        let clickTimer = null;
-        document.getElementById("headerTitle").addEventListener("click", function() {
-            clickCount++;
-            clearTimeout(clickTimer);
-            if (clickCount >= 3) {
-                clickCount = 0;
-                tryAdminLogin();
-            } else {
-                clickTimer = setTimeout(() => { clickCount = 0; }, 800);
-            }
-        });
+    document.getElementById("cal-modal").classList.add("open");
+  }
 
-        function addEvent() {
-            const day = document.getElementById("eventDay").value;
-            const category = document.getElementById("eventCategory").value;
-            const title = document.getElementById("eventTitle").value;
-            const desc = document.getElementById("eventDesc").value;
+  function closeCalendarModalDirect() {
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
+    document.getElementById("cal-modal").classList.remove("open");
+  }
 
-            if (!day || !title) {
-                alert("日付とタイトルは必須です。");
-                return;
-            }
+  function closeCalendarModal(e) {
+    activeCalendarDateStr = null;
+    activeCalendarEvents = null;
+    document.getElementById("cal-modal").classList.remove("open");
+  }
 
-            if (!events[day]) {
-                events[day] = [];
-            }
-            events[day].push({ category, title, desc });
+  const nowInit = new Date();
+  document.getElementById("input-date").value = `${nowInit.getFullYear()}-${String(nowInit.getMonth() + 1).padStart(2, '0')}-01`;
+  render();
+</script>
 
-            document.getElementById("eventDay").value = "";
-            document.getElementById("eventCategory").value = "";
-            document.getElementById("eventTitle").value = "";
-            document.getElementById("eventDesc").value = "";
-
-            renderCalendar();
-            document.getElementById("modalOverlay").classList.remove("show");
-            alert("予定を追加しました！");
-        }
-
-        function deleteEvent(day, index, e) {
-            e.stopPropagation();
-            if (confirm("この予定を削除しますか？")) {
-                events[day].splice(index, 1);
-                if (events[day].length === 0) {
-                    delete events[day];
-                }
-                renderCalendar();
-                document.getElementById("modalOverlay").classList.remove("show");
-            }
-        }
-
-        renderCalendar();
-    </script>
 </body>
 </html>
