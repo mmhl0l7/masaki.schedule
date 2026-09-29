@@ -391,7 +391,7 @@
 
     /* コピーライト風の隠しログインエリア */
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
-    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; }
+    .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; -webkit-touch-callout: none; user-select: none; }
     .admin-footer-btn:hover { opacity: 1; }
     .admin-footer-btn.logged-in { color: var(--deep-color); font-weight: bold; opacity: 1; text-decoration: underline; }
   </style>
@@ -522,7 +522,12 @@
   <div id="content-area"></div>
 
   <div class="footer-admin-area">
-    <button class="admin-footer-btn" id="admin-toggle-btn" onclick="handleSecretAdminTap()">© Masaki Schedule</button>
+    <button class="admin-footer-btn" id="admin-toggle-btn" 
+      onmousedown="startAdminLongPress(event)" 
+      onmouseup="cancelAdminLongPress()" 
+      onmouseleave="cancelAdminLongPress()" 
+      ontouchstart="startAdminLongPress(event)" 
+      ontouchend="cancelAdminLongPress()">© Masaki Schedule</button>
   </div>
 </div>
 
@@ -603,8 +608,8 @@
   
   let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
 
-  let secretTapCount = 0;
-  let secretTapTimer = null;
+  // 長押し用タイマーの変数
+  let adminPressTimer = null;
 
   let activeManageItemId = null;
   let activeCalendarDateStr = null;
@@ -1069,7 +1074,6 @@
     render();
   }
 
-  // ① 推しの誕生日（10月17日）のスペシャル演出
   function updateTodayTopic() {
     const today = new Date();
     const m = today.getMonth() + 1;
@@ -1132,20 +1136,28 @@
     updateFormSelectOptions();
   }
 
-  function handleSecretAdminTap() {
+  // ==========================================
+  // ★ 長押し（ロングプレス）用のイベント関数
+  // ==========================================
+  function startAdminLongPress(e) {
+    if (e.cancelable) e.preventDefault();
+    
+    // すでにログイン中の場合は、長押し時にすぐログアウト確認やメニュー表示へ
     if (isAdminLoggedIn) {
       checkAndToggleForm();
       return;
     }
 
-    secretTapCount++;
-    clearTimeout(secretTapTimer);
-    secretTapTimer = setTimeout(() => { secretTapCount = 0; }, 500);
-
-    if (secretTapCount >= 3) {
-      secretTapCount = 0;
-      clearTimeout(secretTapTimer);
+    // 1.2秒（1200ミリ秒）押し続けた場合に発火
+    adminPressTimer = setTimeout(() => {
       checkAndToggleForm();
+    }, 1200);
+  }
+
+  function cancelAdminLongPress() {
+    if (adminPressTimer) {
+      clearTimeout(adminPressTimer);
+      adminPressTimer = null;
     }
   }
 
@@ -1366,7 +1378,6 @@
     render();
   }
 
-  // ③ ③バックアップ（エクスポート・インポート）機能
   function exportDataToJson() {
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(itemsData, null, 2));
     const downloadAnchor = document.createElement('a');
@@ -1508,7 +1519,6 @@
     let statusTagsHtml = itemStatuses.map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
 
-    // ② 「ココまさき」タブの時系列・SNSタイムライン風デザイン
     let cardClass = currentMainType === "MASAKI" ? "item-card sns-style" : "item-card";
 
     return `
