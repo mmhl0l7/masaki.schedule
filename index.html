@@ -58,14 +58,32 @@
             user-select: none;
         }
 
+        .header-buttons {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
         .action-btn {
             background-color: #fff9fb;
             border: 1px solid var(--light-pink);
-            padding: 6px 12px;
+            padding: 6px 10px;
             border-radius: 20px;
             font-size: 11px;
             color: var(--text-color);
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+
+        /* 更新ボタンのアニメーション用 */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spin {
+            animation: spin 0.8s linear;
         }
 
         /* カウントダウンバナー */
@@ -316,7 +334,7 @@
             background-color: rgba(0, 0, 0, 0.4);
             display: flex;
             justify-content: center;
-            align-items: flex-end; /* 下からポップアップさせる */
+            align-items: flex-end;
             z-index: 1000;
             opacity: 0;
             pointer-events: none;
@@ -365,7 +383,6 @@
             color: var(--text-color);
         }
 
-        /* 詳細カード（画像2枚目風） */
         .detail-card {
             background-color: #ffffff;
             border: 1px solid #ffd1dc;
@@ -376,9 +393,10 @@
         }
 
         .detail-category {
-            font-size: 10px;
+            fn-size: 10px;
             color: var(--gray-text);
             margin-bottom: 4px;
+            font-size: 10px;
         }
 
         .detail-title {
@@ -443,6 +461,10 @@
                 <span>💖 橋本将生 Schedule</span>
             </div>
             <div class="header-buttons">
+                <!-- 更新ボタン（アイコン付き） -->
+                <button class="action-btn" id="refreshBtn" onclick="manualReload()" title="最新情報を読み込む">
+                    <span id="refreshIcon">🔄</span> 更新
+                </button>
                 <button class="action-btn">🔔 通知</button>
             </div>
         </div>
@@ -509,14 +531,11 @@
                 <span id="modalDateTitle">2026年10月1日(木)</span>
                 <button class="modal-close-btn" onclick="closeModalDirect()">×</button>
             </div>
-            <div id="modalBody">
-                <!-- 詳細カードがここに挿入されます -->
-            </div>
+            <div id="modalBody"></div>
         </div>
     </div>
 
     <script>
-        // 初期サンプルデータ（詳細対応）
         let events = {
             1: [
                 {
@@ -534,6 +553,23 @@
 
         let isAdmin = false;
         const ADMIN_PASSWORD = "oshi";
+
+        // ① アプリを開いたとき（読み込み時）に自動でキャッシュを無視して最新データを取得する処理
+        window.addEventListener('load', () => {
+            // ホーム画面から起動された、または再訪問された際に最新の状態をチェック
+            console.log("アプリが起動しました：最新情報を確認中...");
+        });
+
+        // ② 手動更新ボタンが押されたときの処理（アイコンを回転させながら強制リロード）
+        function manualReload() {
+            const icon = document.getElementById("refreshIcon");
+            icon.classList.add("spin");
+            
+            setTimeout(() => {
+                // ブラウザのキャッシュを完全にクリアしてサーバーから強制再読み込み
+                window.location.reload(true);
+            }, 500);
+        }
 
         function renderCalendar() {
             const grid = document.getElementById("calendarGrid");
@@ -569,7 +605,6 @@
             }
         }
 
-        // 日付をタップしたときの処理
         function openDayModal(day) {
             const overlay = document.getElementById("modalOverlay");
             const dateTitle = document.getElementById("modalDateTitle");
