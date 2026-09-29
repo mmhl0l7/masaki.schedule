@@ -188,22 +188,6 @@
     .item-summary-bar { cursor: pointer; }
     .item-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .item-date-text { font-size: 11px; font-weight: bold; color: var(--deep-color); background: var(--tag-bg); padding: 2px 8px; border-radius: 10px; display: inline-block; }
-    
-    .purchase-status-badge { 
-      font-size: 11px; 
-      padding: 3px 10px; 
-      border-radius: 12px; 
-      border: 1px solid var(--border-color); 
-      background: #fff; 
-      color: #666; 
-      cursor: pointer; 
-      font-weight: bold; 
-    }
-    .purchase-status-badge.done { 
-      background: #e2f0d9; 
-      color: #385723; 
-      border-color: #b7e1cd; 
-    }
 
     .item-title { font-size: 13px; font-weight: bold; color: #333; margin-bottom: 6px; }
     .item-collapsible-detail { display: none; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border-color); }
@@ -361,22 +345,6 @@
     .modal-date-title { font-size: 14px; font-weight: bold; color: var(--deep-color); }
     .modal-close-btn { background: none; border: none; font-size: 18px; font-weight: bold; color: #888; cursor: pointer; padding: 0 4px; }
 
-    .manage-modal-title-area { margin-bottom: 14px; }
-    .manage-modal-main-title { font-size: 13px; font-weight: bold; color: #222; margin-top: 2px; }
-    .manage-section-title { font-size: 12px; font-weight: bold; color: var(--deep-color); margin: 12px 0 6px 0; }
-    .manage-sub-label { font-size: 10px; color: #666; margin-bottom: 6px; }
-    .manage-row-card { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid var(--border-color); border-radius: 12px; padding: 8px 10px; margin-bottom: 8px; }
-    .manage-row-left { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; color: #333; }
-    .manage-row-left input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--main-color); }
-    .manage-counter-wrap { display: flex; align-items: center; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; overflow: hidden; }
-    .manage-counter-btn { background: #f1f3f5; border: none; width: 26px; height: 26px; font-weight: bold; cursor: pointer; font-size: 12px; color: #555; }
-    .manage-counter-num { width: 28px; text-align: center; font-size: 12px; font-weight: bold; color: #333; }
-    .manage-add-row { display: flex; gap: 6px; margin-bottom: 10px; }
-    .manage-add-input { flex: 1; padding: 6px 10px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 11px; }
-    .manage-add-btn { background: #f8f9fa; border: 1px solid #ccc; color: #333; padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-    .manage-save-btn { background: #4db6ac; color: #fff; border: none; width: 100%; padding: 10px; border-radius: 12px; font-weight: bold; font-size: 13px; cursor: pointer; margin-top: 14px; }
-    .manage-clear-btn { background: #fff; color: #666; border: 1px solid #ccc; width: 100%; padding: 8px; border-radius: 12px; font-weight: bold; font-size: 12px; cursor: pointer; margin-top: 8px; }
-
     .footer-admin-area { text-align: center; margin: 30px 0 15px 0; }
     .admin-footer-btn { background: none; border: none; color: #e8d0d8; font-size: 9px; cursor: pointer; text-decoration: none; padding: 5px; opacity: 0.6; -webkit-touch-callout: none; user-select: none; }
     .admin-footer-btn:hover { opacity: 1; }
@@ -529,39 +497,6 @@
   </div>
 </div>
 
-<div class="modal-overlay" id="manage-modal" onclick="closeManageModal(event)">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div class="manage-modal-title-area">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-size: 14px; font-weight: bold; color: var(--deep-color);">管理ステータス</span>
-        <button class="modal-close-btn" onclick="closeManageModalDirect()">×</button>
-      </div>
-      <div class="manage-modal-main-title" id="manage-modal-item-title">タイトル</div>
-    </div>
-
-    <div class="manage-section-title">オンライン</div>
-    <div class="manage-sub-label">購入・予約</div>
-    <div id="manage-online-container"></div>
-
-    <div class="manage-add-row">
-      <input type="text" class="manage-add-input" id="new-online-name" placeholder="">
-      <button class="manage-add-btn" onclick="addCustomReservation('online')">追加</button>
-    </div>
-
-    <div class="manage-section-title">店頭</div>
-    <div id="manage-store-container"></div>
-
-    <div class="manage-add-row">
-      <input type="text" class="manage-add-input" id="new-store-name" placeholder="">
-      <button class="manage-add-btn" onclick="addCustomReservation('store')">追加</button>
-    </div>
-    <div class="manage-sub-label">店舗名を入力して複数登録できます</div>
-
-    <button class="manage-save-btn" onclick="saveManageModalData()">保存する</button>
-    <button class="manage-clear-btn" onclick="clearAllReservations()">予約済をすべて解除</button>
-  </div>
-</div>
-
 <script>
   let currentMainType = "MAGAZINE";
   let currentMemberFilters = ["すべて"];
@@ -572,7 +507,6 @@
   
   let isAdminLoggedIn = sessionStorage.getItem("masaki_admin_logged_in") === "true";
 
-  let activeManageItemId = null;
   let activeCalendarDateStr = null;
   let activeCalendarEvents = null;
 
@@ -617,29 +551,19 @@
     try { notificationsData = JSON.parse(savedNotifs); } catch (e) { notificationsData = []; }
   }
 
-  const defaultReservations = [
-    { name: "Amazon", checked: false, count: 1, type: "online" },
-    { name: "楽天ブックス", checked: false, count: 1, type: "online" },
-    { name: "セブンネット", checked: false, count: 1, type: "online" },
-    { name: "タワーレコード", checked: false, count: 1, type: "online" }
-  ];
-
   if (itemsData.length === 0) {
     itemsData = [
       { 
         id: 1, type: "MAGAZINE", date: "2026-10-01", endDate: "", time: "", title: "J Movie Magazine Vol.135 (表紙)", desc: "【新作現場リポート】\n橋本将生 『お姉ちゃんの翠くん』", status: ["予約受付中", "表紙"], member: "橋本将生", 
-        links: [{name: "Amazon", url: "https://amazon.co.jp"}], 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
+        links: [{name: "Amazon", url: "https://amazon.co.jp"}]
       },
       { 
         id: 2, type: "MASAKI", date: "2026-08-15", endDate: "", time: "", title: "ココまさきのサンプル記事・予定", desc: "ここにココまさきの予定が入ります。", status: ["話題・言及"], member: "橋本将生", 
-        links: [], 
-        reservations: JSON.parse(JSON.stringify(defaultReservations))
+        links: []
       },
       { 
         id: 3, type: "EVENT", date: "2026-01-01", endDate: "", time: "", title: "誕生日・記念日サンプル", desc: "誕生日や記念日の予定です。", status: ["誕生日", "記念日"], member: "橋本将生", 
-        links: [], 
-        reservations: []
+        links: []
       }
     ];
     saveItemsToStorage();
@@ -742,7 +666,6 @@
       return;
     }
 
-    // 記念日/誕生日ステータスを持つものは MAGZINE タブなどに飛ばす
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
     if (item.type === "MASAKI") {
       switchMainType("MASAKI");
@@ -937,7 +860,7 @@
   function updateStatusFilterPills() {
     const container = document.getElementById("status-filters");
     container.innerHTML = "";
-    let statuses = ["すべて", "誕生日", "記念日"]; // どのタブでも誕生日・記念日で絞り込めるように追加
+    let statuses = ["すべて", "誕生日", "記念日"];
     
     if (currentMainType === "MAGAZINE") {
       statuses.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
@@ -965,7 +888,7 @@
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    let options = ["誕生日", "記念日"]; // どのカテゴリでも誕生日・記念日を選択可能に
+    let options = ["誕生日", "記念日"];
     
     if (targetType === "MAGAZINE") {
       options.push("予約受付中", "表紙", "発売中", "重版", "CD発売");
@@ -1180,103 +1103,6 @@
     cardEl.classList.toggle("open");
   }
 
-  function openManageModal(id) {
-    activeManageItemId = id;
-    const item = itemsData.find(i => i.id === id);
-    if (!item) return;
-
-    document.getElementById("manage-modal-item-title").textContent = item.title;
-    renderManageLists(item);
-    document.getElementById("manage-modal").classList.add("open");
-  }
-
-  function closeManageModalDirect() {
-    document.getElementById("manage-modal").classList.remove("open");
-  }
-
-  function closeManageModal(e) {
-    document.getElementById("manage-modal").classList.remove("open");
-  }
-
-  function renderManageLists(item) {
-    const onlineContainer = document.getElementById("manage-online-container");
-    const storeContainer = document.getElementById("manage-store-container");
-    onlineContainer.innerHTML = "";
-    storeContainer.innerHTML = "";
-
-    if (!item.reservations) item.reservations = JSON.parse(JSON.stringify(defaultReservations));
-
-    let hasStore = false;
-
-    item.reservations.forEach((res, index) => {
-      let row = document.createElement("div");
-      row.className = "manage-row-card";
-      row.innerHTML = `
-        <div class="manage-row-left">
-          <input type="checkbox" id="res-check-${index}" ${res.checked ? 'checked' : ''} onchange="updateResCheck(${index}, this.checked)">
-          <label for="res-check-${index}" style="cursor:pointer;">${res.name}</label>
-        </div>
-        <div class="manage-counter-wrap">
-          <button class="manage-counter-btn" onclick="changeResCount(${index}, -1)">-</button>
-          <div class="manage-counter-num" id="res-count-${index}">${res.count}</div>
-          <button class="manage-counter-btn" onclick="changeResCount(${index}, 1)">+</button>
-        </div>
-      `;
-
-      if (res.type === "store") {
-        hasStore = true;
-        storeContainer.appendChild(row);
-      } else {
-        onlineContainer.appendChild(row);
-      }
-    });
-
-    if (!hasStore) {
-      storeContainer.innerHTML = `<div style="font-size:11px; color:#888; padding:4px 0;">登録された店舗はありません</div>`;
-    }
-  }
-
-  function updateResCheck(index, checked) {
-    const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item && item.reservations[index]) item.reservations[index].checked = checked;
-  }
-
-  function changeResCount(index, delta) {
-    const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item && item.reservations[index]) {
-      item.reservations[index].count = Math.max(1, item.reservations[index].count + delta);
-      document.getElementById(`res-count-${index}`).textContent = item.reservations[index].count;
-    }
-  }
-
-  function addCustomReservation(type) {
-    const inputId = type === 'online' ? 'new-online-name' : 'new-store-name';
-    const inputEl = document.getElementById(inputId);
-    const val = inputEl.value.trim();
-    if (!val) return;
-
-    const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item) {
-      item.reservations.push({ name: val, checked: true, count: 1, type: type });
-      inputEl.value = "";
-      renderManageLists(item);
-    }
-  }
-
-  function saveManageModalData() {
-    saveItemsToStorage();
-    closeManageModalDirect();
-    render();
-  }
-
-  function clearAllReservations() {
-    const item = itemsData.find(i => i.id === activeManageItemId);
-    if (item) {
-      item.reservations.forEach(r => r.checked = false);
-      renderManageLists(item);
-    }
-  }
-
   function parseLinks(inputStr) {
     if (!inputStr || !inputStr.trim()) return [];
     let result = [];
@@ -1323,11 +1149,11 @@
         let stepType = repeat;
 
         if (stepType === "weekly") {
-          limitCount = 26; // 毎週（約半年分）
+          limitCount = 26;
         } else if (stepType === "monthly") {
-          limitCount = 12; // 毎月（1年分）
+          limitCount = 12;
         } else if (stepType === "yearly") {
-          limitCount = 3;  // 毎年（3年分）
+          limitCount = 3;
         }
 
         for (let i = 1; i <= limitCount; i++) {
@@ -1353,8 +1179,7 @@
         if (idx === 0) firstNewId = newId;
 
         itemsData.push({ 
-          id: newId, type, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks, 
-          reservations: type === "MASAKI" ? JSON.parse(JSON.stringify(defaultReservations)) : JSON.parse(JSON.stringify(defaultReservations))
+          id: newId, type, date: dStr, endDate: "", time: "20:00", title, desc, status, member: "橋本将生", links: parsedLinks
         });
       });
 
@@ -1373,20 +1198,15 @@
       let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
       let isAnniversaryOrBirthday = itemStatuses.includes("誕生日") || itemStatuses.includes("記念日");
 
-      // 「ココまさき」タブの時は MASAKI のみ、かつ誕生日等を除外するかどうか（お好みで。ここでは通常通り）
       if (currentMainType === "MASAKI") {
         if (item.type !== "MASAKI") return false;
       } else {
-        // ココまさき以外（MAGAZINE, PROGRAM, EVENT）の場合：
-        // 1. 自身のカテゴリに一致するもの
-        // 2. または、ステータスに「誕生日」か「記念日」が含まれるものは、どのタブでも表示させる
         let matchesCategory = (item.type === currentMainType);
         if (!matchesCategory && !isAnniversaryOrBirthday) {
           return false;
         }
       }
 
-      // ステータスフィルターの適用
       if (!currentStatusFilters.includes("すべて")) {
         if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
       }
@@ -1411,16 +1231,7 @@
   }
 
   function createCardHtml(item) {
-    let purchaseHtml = "";
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
-
-    if (item.type === "MAGAZINE") {
-      let checkedCount = (item.reservations || []).filter(r => r.checked).length;
-      let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
-      let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
-      purchaseHtml = `<button class="${purchaseClass}" onclick="event.stopPropagation(); openManageModal(${item.id})">${purchaseText}</button>`;
-    }
-
     let statusTagsHtml = itemStatuses.map(st => `<span class="member-tag">${st}</span>`).join(" ");
     let linksHtml = (item.links || []).map(l => `<a href="${l.url}" target="_blank" class="item-link-chip" onclick="event.stopPropagation()">${l.name}</a>`).join(" ");
 
@@ -1429,7 +1240,6 @@
         <div class="item-summary-bar" onclick="toggleItemDetail(${item.id})">
           <div class="item-header-row">
             <div class="item-date-text">📅 ${item.date}</div>
-            ${purchaseHtml}
           </div>
           <div class="item-title">${item.title} ▼</div>
         </div>
