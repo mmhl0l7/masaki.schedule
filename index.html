@@ -27,7 +27,6 @@
             max-width: 480px;
             margin: 0 auto;
         }
-        /* ヘッダー */
         header {
             display: flex;
             justify-content: space-between;
@@ -47,16 +46,25 @@
             font-size: 0.95rem;
             cursor: pointer;
         }
-        .notification-btn {
+        .header-right {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .notification-btn, .admin-login-btn {
             background: #ffffff;
             border: 1px solid #e2e8f0;
-            padding: 4px 12px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #4a5568;
             cursor: pointer;
         }
-        /* カウントダウンバナー */
+        .admin-login-btn.logged-in {
+            background: var(--primary-pink);
+            color: white;
+            border-color: var(--primary-pink);
+        }
         .countdown-banner {
             background: linear-gradient(135deg, #f472b6, #db2777);
             color: white;
@@ -76,7 +84,6 @@
             display: inline-block;
             margin-bottom: 4px;
         }
-        /* プロフィールカード */
         .profile-card {
             background: white;
             border: 1px solid var(--border-color);
@@ -122,7 +129,6 @@
             font-weight: bold;
             cursor: pointer;
         }
-        /* タブメニュー */
         .tabs-container {
             display: flex;
             gap: 6px;
@@ -147,7 +153,6 @@
             background: var(--primary-pink);
             color: white;
         }
-        /* フィルターセクション */
         .filter-section {
             background: white;
             padding: 10px 12px;
@@ -178,7 +183,6 @@
             color: white;
             border-color: var(--primary-pink);
         }
-        /* ビュー切替（リスト / カレンダー） */
         .view-switch {
             display: flex;
             gap: 6px;
@@ -198,7 +202,6 @@
             background: var(--light-pink);
             border-color: var(--border-color);
         }
-        /* スケジュールカード */
         .schedule-card {
             background: white;
             border: 1px solid #e2e8f0;
@@ -250,7 +253,10 @@
             font-size: 0.7rem;
             font-weight: bold;
         }
-        /* 追加フォーム */
+        /* 管理者専用エリア（初期非表示） */
+        .admin-only {
+            display: none;
+        }
         .add-form-card {
             background: white;
             border: 1px solid var(--border-color);
@@ -282,7 +288,6 @@
             font-size: 0.82rem;
             cursor: pointer;
         }
-        /* バックアップ・復元エリア */
         .backup-section {
             margin-top: 20px;
             border-top: 1px dashed #cbd5e1;
@@ -314,22 +319,22 @@
 </head>
 <body>
 
-    <!-- ヘッダー -->
     <header>
         <div class="header-left">
             <span class="sync-icon">🔄</span>
             <span>💖 橋本将生 Schedule</span>
         </div>
-        <div class="notification-btn">🔔 通知</div>
+        <div class="header-right">
+            <button class="admin-login-btn" id="adminBtn" onclick="toggleAdminLogin()">🔐 管理者ログイン</button>
+            <div class="notification-btn">🔔 通知</div>
+        </div>
     </header>
 
-    <!-- カウントダウンバナー -->
     <div class="countdown-banner">
         <div class="countdown-sub">✨ 映画公開カウントダウン</div>
         <div>映画『お姉ちゃんの翠くん』公開まで あと 67 日！(12/4公開)</div>
     </div>
 
-    <!-- プロフィールカード -->
     <div class="profile-card">
         <div class="profile-left">
             <div class="profile-avatar">💖</div>
@@ -341,15 +346,13 @@
         <button class="open-btn">開く ▼</button>
     </div>
 
-    <!-- タブメニュー -->
     <div class="tabs-container">
-        <button class="tab active">MAGAZINE</button>
-        <button class="tab">番組/映画</button>
-        <button class="tab">イベント</button>
-        <button class="tab">ココマサキ</button>
+        <button class="tab active" onclick="switchTab(this)">MAGAZINE</button>
+        <button class="tab" onclick="switchTab(this)">番組/映画</button>
+        <button class="tab" onclick="switchTab(this)">イベント</button>
+        <button class="tab" onclick="switchTab(this)">ココマサキ</button>
     </div>
 
-    <!-- フィルターセクション -->
     <div class="filter-section">
         <div class="filter-row">
             <button class="chip active">すべて</button>
@@ -365,20 +368,17 @@
         </div>
     </div>
 
-    <!-- ビュー切替 -->
     <div class="view-switch">
         <button class="view-btn active">リスト</button>
         <button class="view-btn">カレンダー</button>
     </div>
 
     <!-- スケジュール一覧 -->
-    <div id="scheduleContainer">
-        <!-- 動的表示 -->
-    </div>
+    <div id="scheduleContainer"></div>
 
-    <!-- 予定追加フォーム -->
-    <div class="add-form-card">
-        <h3>➕ スケジュールの追加</h3>
+    <!-- 管理者専用：予定追加フォーム -->
+    <div class="add-form-card admin-only" id="adminAddFormCard">
+        <h3>➕ スケジュールの追加（管理者専用）</h3>
         <form id="addForm">
             <input type="date" id="inputDate" required value="2026-10-01">
             <input type="text" id="inputTitle" placeholder="タイトル（例: J Movie Magazine Vol.135 (表紙) ▼）" required>
@@ -387,10 +387,10 @@
         </form>
     </div>
 
-    <!-- バックアップ・復元（localStorage用・安全） -->
-    <div class="backup-section">
+    <!-- 管理者専用：バックアップ・復元エリア -->
+    <div class="backup-section admin-only" id="adminBackupCard">
         <p style="font-size: 0.72rem; color: var(--text-secondary); margin-bottom: 6px;">
-            ※完全オフライン（localStorage）保存・課金リスクゼロ
+            ※管理者用データ管理
         </p>
         <button class="backup-btn" onclick="exportData()">データをファイルに保存（バックアップ）</button>
         <input type="file" id="importFile" accept=".json" onchange="importData(event)" style="font-size: 0.75rem;">
@@ -398,6 +398,8 @@
 
     <script>
         const STORAGE_KEY = "masaki_schedule_exact_ui_data";
+        const ADMIN_PASS = "masaki0927"; // 管理者パスワード（必要に応じて変更してください）
+        let isAdminLoggedIn = false;
 
         const defaultData = [
             {
@@ -416,9 +418,41 @@
             localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
         }
 
+        function toggleAdminLogin() {
+            if (isAdminLoggedIn) {
+                if (confirm("管理者からログアウトしますか？")) {
+                    isAdminLoggedIn = false;
+                    document.getElementById("adminBtn").textContent = "🔐 管理者ログイン";
+                    document.getElementById("adminBtn").classList.remove("logged-in");
+                    updateAdminUI();
+                    render();
+                }
+            } else {
+                const input = prompt("管理者パスワードを入力してください：");
+                if (input === ADMIN_PASS) {
+                    isAdminLoggedIn = true;
+                    document.getElementById("adminBtn").textContent = "🔓 管理者中 (ログアウト)";
+                    document.getElementById("adminBtn").classList.add("logged-in");
+                    updateAdminUI();
+                    render();
+                    alert("管理者としてログインしました。");
+                } else if (input !== null) {
+                    alert("パスワードが違います。");
+                }
+            }
+        }
+
+        function updateAdminUI() {
+            const adminElements = document.querySelectorAll('.admin-only');
+            adminElements.forEach(el => {
+                el.style.display = isAdminLoggedIn ? "block" : "none";
+            });
+        }
+
         function render() {
             const items = loadData();
             const container = document.getElementById("scheduleContainer");
+            if (!container) return;
             container.innerHTML = "";
 
             if (items.length === 0) {
@@ -435,12 +469,18 @@
                     tagsHtml = item.tags.map(t => `<span class="tag">${t}</span>`).join("");
                 }
 
+                // 管理者ログイン中のみ削除ボタンを表示
+                let deleteBtnHtml = "";
+                if (isAdminLoggedIn) {
+                    deleteBtnHtml = `<button class="delete-card-btn" onclick="deleteItem(${index})">削除</button>`;
+                }
+
                 card.innerHTML = `
                     <div class="schedule-top-row">
                         <div class="schedule-date">📅 ${item.date}</div>
                         <div>
                             <button class="status-pill"><span>○</span> 管理ステータス</button>
-                            <button class="delete-card-btn" onclick="deleteItem(${index})">削除</button>
+                            ${deleteBtnHtml}
                         </div>
                     </div>
                     <div class="schedule-title">${escapeHTML(item.title)}</div>
@@ -452,6 +492,8 @@
 
         document.getElementById("addForm").addEventListener("submit", function(e) {
             e.preventDefault();
+            if (!isAdminLoggedIn) return;
+
             const date = document.getElementById("inputDate").value;
             const title = document.getElementById("inputTitle").value;
             const tagsInput = document.getElementById("inputTags").value;
@@ -464,9 +506,11 @@
             this.reset();
             document.getElementById("inputDate").value = "2026-10-01";
             render();
+            alert("スケジュールを追加しました！");
         });
 
         function deleteItem(index) {
+            if (!isAdminLoggedIn) return;
             if (confirm("この予定を削除しますか？")) {
                 const items = loadData();
                 items.splice(index, 1);
@@ -475,22 +519,29 @@
             }
         }
 
+        function switchTab(el) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+        }
+
         function escapeHTML(str) {
             return str.replace(/[&<>'"]/g, tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag));
         }
 
         function exportData() {
+            if (!isAdminLoggedIn) return;
             const data = localStorage.getItem(STORAGE_KEY) || "[]";
             const blob = new Blob([data], { type: "application/json" });
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download = "masaki_schedule_exact_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+            a.download = "masaki_schedule_backup_" + new Date().toISOString().slice(0, 10) + ".json";
             a.click();
             URL.revokeObjectURL(url);
         }
 
         function importData(event) {
+            if (!isAdminLoggedIn) return;
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -511,6 +562,7 @@
             reader.readAsText(file);
         }
 
+        // 初期表示
         render();
     </script>
 </body>
