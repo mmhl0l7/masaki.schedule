@@ -94,6 +94,11 @@
             text-align: center;
             margin-bottom: 16px;
             box-shadow: 0 4px 10px rgba(255, 64, 129, 0.2);
+            cursor: pointer;
+            transition: transform 0.1s ease;
+        }
+        .countdown-banner:active {
+            transform: scale(0.98);
         }
 
         .countdown-tag {
@@ -120,6 +125,11 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 16px;
+            cursor: pointer;
+            transition: background-color 0.1s ease;
+        }
+        .profile-card:active {
+            background-color: var(--pale-pink);
         }
 
         .profile-info {
@@ -157,7 +167,7 @@
             padding: 6px 12px;
             border-radius: 20px;
             font-size: 12px;
-            cursor: pointer;
+            pointer-events: none; /* カード全体のクリックに任せる */
         }
 
         /* ナビゲーションタブ */
@@ -180,6 +190,7 @@
             cursor: pointer;
             background: transparent;
             border: none;
+            transition: background-color 0.2s;
         }
 
         .nav-tab.active {
@@ -203,6 +214,9 @@
             border-radius: 16px;
             font-size: 12px;
             cursor: pointer;
+        }
+        .cal-btn:active {
+            background-color: var(--light-pink);
         }
 
         .current-month {
@@ -465,16 +479,18 @@
                 <button class="action-btn" id="refreshBtn" onclick="manualReload()" title="最新情報を読み込む">
                     <span id="refreshIcon">🔄</span> 更新
                 </button>
-                <button class="action-btn">🔔 通知</button>
+                <button class="action-btn" onclick="alert('現在、新しい通知はありません💌')">🔔 通知</button>
             </div>
         </div>
 
-        <div class="countdown-banner">
+        <!-- カウントダウンバナー（タップ可能に修正） -->
+        <div class="countdown-banner" onclick="showCountdownDetail()">
             <div class="countdown-tag">⚡ 映画公開カウントダウン</div>
             <div class="countdown-text">映画『お姉ちゃんの翠くん』公開まで あと 67 日！ (12/4公開)</div>
         </div>
 
-        <div class="profile-card">
+        <!-- プロフィールカード（タップ可能に修正） -->
+        <div class="profile-card" onclick="toggleProfile()">
             <div class="profile-info">
                 <div class="profile-avatar">💖</div>
                 <div>
@@ -482,14 +498,15 @@
                     <div class="profile-sub">プロフィール＆関連リンクまとめ</div>
                 </div>
             </div>
-            <button class="profile-toggle">開く ▼</button>
+            <button class="profile-toggle" id="profileToggleBtn">開く ▼</button>
         </div>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active">MAGAZINE</button>
-            <button class="nav-tab">番組/映画</button>
-            <button class="nav-tab">イベント</button>
-            <button class="nav-tab">ココまさき</button>
+        <!-- ナビゲーションタブ（切り替え可能に修正） -->
+        <div class="nav-tabs" id="navTabs">
+            <button class="nav-tab active" onclick="switchTab(this, 'MAGAZINE')">MAGAZINE</button>
+            <button class="nav-tab" onclick="switchTab(this, '番組/映画')">番組/映画</button>
+            <button class="nav-tab" onclick="switchTab(this, 'イベント')">イベント</button>
+            <button class="nav-tab" onclick="switchTab(this, 'ココまさき')">ココまさき</button>
         </div>
 
         <!-- 管理者専用パネル -->
@@ -508,11 +525,11 @@
         </div>
 
         <div class="calendar-header">
-            <button class="cal-btn">&lt; 前の月</button>
+            <button class="cal-btn" onclick="alert('前の月のデータはありません')">&lt; 前の月</button>
             <div class="current-month">2026年10月</div>
             <div style="display: flex; gap: 4px;">
-                <button class="cal-btn">今月</button>
-                <button class="cal-btn">次の月 &gt;</button>
+                <button class="cal-btn" onclick="alert('今月を表示しています')">今月</button>
+                <button class="cal-btn" onclick="alert('次の月のデータはまだありません')">次の月 &gt;</button>
             </div>
         </div>
 
@@ -562,9 +579,74 @@
             }, 500);
         }
 
+        // カウントダウンバナーをタップしたときの処理
+        function showCountdownDetail() {
+            const overlay = document.getElementById("modalOverlay");
+            document.getElementById("modalDateTitle").innerText = "⚡ 映画公開情報";
+            document.getElementById("modalBody").innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-category">映画情報</div>
+                    <div class="detail-title">『お姉ちゃんの翠くん』</div>
+                    <div class="detail-desc">公開日: 2026年12月4日(金)\n出演: 橋本将生 ほか\n\n公開まであと67日！お楽しみに✨</div>
+                    <span class="detail-tag">特報</span>
+                </div>
+            `;
+            overlay.classList.add("show");
+        }
+
+        // プロフィールカードをタップしたときの処理（開閉）
+        let profileOpen = false;
+        function toggleProfile() {
+            profileOpen = !profileOpen;
+            const btn = document.getElementById("profileToggleBtn");
+            const overlay = document.getElementById("modalOverlay");
+            
+            if (profileOpen) {
+                btn.innerText = "閉じる ▲";
+                document.getElementById("modalDateTitle").innerText = "💖 プロフィール＆リンク";
+                document.getElementById("modalBody").innerHTML = `
+                    <div class="detail-card">
+                        <div class="detail-category">プロフィール</div>
+                        <div class="detail-title">橋本将生 (Masaki Hashimoto)</div>
+                        <div class="detail-desc">俳優として活躍中。映画「お姉ちゃんの翠くん」などに出演。</div>
+                        <span class="detail-tag">Official</span>
+                    </div>
+                    <div class="detail-card">
+                        <div class="detail-category">関連リンク</div>
+                        <div class="detail-title">公式SNS・公式サイト</div>
+                        <div class="detail-desc">最新情報は各公式SNSをチェック！</div>
+                        <span class="detail-tag">SNS</span>
+                    </div>
+                `;
+                overlay.classList.add("show");
+            } else {
+                btn.innerText = "開く ▼";
+                overlay.classList.remove("show");
+            }
+        }
+
+        // タブを切り替えたときの処理
+        function switchTab(element, tabName) {
+            const tabs = document.querySelectorAll(".nav-tab");
+            tabs.forEach(t => t.classList.remove("active"));
+            element.classList.add("active");
+            
+            // タブに応じた簡易ポップアップ表示
+            const overlay = document.getElementById("modalOverlay");
+            document.getElementById("modalDateTitle").innerText = `📂 ${tabName} カテゴリ`;
+            document.getElementById("modalBody").innerHTML = `
+                <div class="detail-card" style="text-align: center; padding: 20px;">
+                    <div class="detail-title">${tabName} のスケジュール</div>
+                    <div class="detail-desc" style="margin-top: 8px;">現在表示されている月の ${tabName} 関連の予定をまとめています。</div>
+                </div>
+            `;
+            overlay.classList.add("show");
+        }
+
         function renderCalendar() {
             const grid = document.getElementById("calendarGrid");
-            const weekdaysHTML = `
+            
+            let gridHTML = `
                 <div class="weekdays" style="color: #ff4081;">日</div>
                 <div class="weekdays">月</div>
                 <div class="weekdays">火</div>
@@ -573,11 +655,9 @@
                 <div class="weekdays">金</div>
                 <div class="weekdays">土</div>
             `;
-            grid.innerHTML = weekdaysHTML;
 
-            // 2026年10月1日は木曜日（空白4マス）
             for (let i = 0; i < 4; i++) {
-                grid.innerHTML += `<div class="day-cell" style="opacity: 0.3; background-color: #fafafa; pointer-events: none;"></div>`;
+                gridHTML += `<div class="day-cell" style="opacity: 0.3; background-color: #fafafa; pointer-events: none;"></div>`;
             }
 
             for (let day = 1; day <= 31; day++) {
@@ -588,16 +668,17 @@
                     });
                 }
 
-                grid.innerHTML += `
+                gridHTML += `
                     <div class="day-cell" data-day="${day}">
                         <span class="day-number">${day}</span>
                         ${eventHtml}
                     </div>
                 `;
             }
+
+            grid.innerHTML = gridHTML;
         }
 
-        // カレンダーグリッド全体にクリック/タップイベントを設定（確実な反応のため）
         document.getElementById("calendarGrid").addEventListener("click", function(e) {
             const cell = e.target.closest(".day-cell");
             if (cell && cell.dataset.day) {
@@ -637,11 +718,15 @@
         function closeModal(e) {
             if (e.target.id === "modalOverlay") {
                 document.getElementById("modalOverlay").classList.remove("show");
+                profileOpen = false;
+                document.getElementById("profileToggleBtn").innerText = "開く ▼";
             }
         }
 
         function closeModalDirect() {
             document.getElementById("modalOverlay").classList.remove("show");
+            profileOpen = false;
+            document.getElementById("profileToggleBtn").innerText = "開く ▼";
         }
 
         function tryAdminLogin() {
@@ -681,7 +766,7 @@
             const day = document.getElementById("eventDay").value;
             const category = document.getElementById("eventCategory").value;
             const title = document.getElementById("eventTitle").value;
-            const desc = document.getElementById("eventDesc5")?.value || document.getElementById("eventDesc").value;
+            const desc = document.getElementById("eventDesc").value;
 
             if (!day || !title) {
                 alert("日付とタイトルは必須です。");
