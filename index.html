@@ -432,7 +432,6 @@
     <button class="cancel-edit-btn" onclick="document.getElementById('profile-form').style.display='none'">キャンセル</button>
   </div>
 
-  <!-- タブは従来どおりの4つ -->
   <div class="type-tabs" id="type-tabs-container">
     <button class="type-tab active" id="tab-magazine" onclick="switchMainType('MAGAZINE')">MAGAZINE</button>
     <button class="type-tab" id="tab-program" onclick="switchMainType('PROGRAM')">番組/映画</button>
@@ -468,7 +467,6 @@
       <textarea id="input-desc" rows="3" placeholder="【現場リポート】など"></textarea>
     </div>
     
-    <!-- ▼ カテゴリを複数選択（チェックボックス）に変更 ▼ -->
     <div class="form-group">
       <label>カテゴリ（複数選択可）</label>
       <div id="input-type-container" class="checkbox-row-container">
@@ -478,7 +476,6 @@
         <label><input type="checkbox" name="form-type-checkbox" value="MASAKI" onchange="onFormTypeChange()">ココまさき</label>
       </div>
     </div>
-    <!-- ▲ここまで▲ -->
 
     <div class="form-group">
       <label>ステータス（複数選択可）</label>
@@ -590,7 +587,6 @@
     itemsData = [];
     snapshot.forEach((docSnap) => {
       let data = docSnap.id ? { id: docSnap.id, ...docSnap.data() } : docSnap.data();
-      // 既存データの互換性保持（旧型式の単一 string の type を配列に変換）
       if (typeof data.type === "string") {
         data.type = [data.type];
       } else if (!Array.isArray(data.type)) {
@@ -1039,11 +1035,6 @@
 
   function updateFormVisibilityBytype() {
     const checkedTypes = Array.from(document.querySelectorAll('input[name="form-type-checkbox"]:checked')).map(cb => cb.value);
-    // 選択されているカテゴリに MAGAZINE や MASAKI が含まれるかどうかで時間・終了日の表示を切り替え
-    const isOnlyMasakiOrMagazine = checkedTypes.length > 0 && checkedTypes.every(t => t === "MAGAZINE" || t === "MASAKI");
-    
-    // 時間・終了日を隠す条件：もし全てがMAGAZINEかMASAKIなら隠す（あるいはどれか含まれる場合はお好みで。ここでは従来通り判定）
-    let hasMagazineOrMasaki = checkedTypes.includes("MAGAZINE") || checkedTypes.includes("MASAKI");
     let hasProgramOrEvent = checkedTypes.includes("PROGRAM") || checkedTypes.includes("EVENT");
 
     document.getElementById("group-time").style.display = hasProgramOrEvent ? "block" : "none";
@@ -1074,23 +1065,12 @@
   }
 
   function updateFormStatusOptions(selectedStatuses = []) {
-    const checkedTypes = Array.from(document.querySelectorAll('input[name="form-type-checkbox"]:checked')).map(cb => cb.value);
-    const targetType = checkedTypes.length > 0 ? checkedTypes[0] : currentMainType;
     const statusContainer = document.getElementById("input-status-container");
     if (!statusContainer) return;
     
     statusContainer.innerHTML = "";
-    let options = [];
-    
-    if (targetType === "MAGAZINE") {
-      options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "記念日", "誕生日"];
-    } else if (targetType === "PROGRAM") {
-      options = ["放送予定", "映画公開", "ゲスト出演", "レギュラー", "記念日", "誕生日"];
-    } else if (targetType === "EVENT") {
-      options = ["イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日"];
-    } else if (targetType === "MASAKI") {
-      options = ["話題・言及", "YouTube", "SNS", "雑誌・WEB", "その他"];
-    }
+    // すべてのカテゴリ共通で選べるステータス候補（誕生日・記念日を含む）
+    let options = ["予約受付中", "表紙", "発売中", "重版", "CD発売", "放送予定", "映画公開", "ゲスト出演", "レギュラー", "イベント", "チケット申込期間", "チケット", "グッズ販売", "お知らせ", "記念日", "誕生日"];
 
     let selectedArr = Array.isArray(selectedStatuses) ? selectedStatuses : [selectedStatuses];
 
@@ -1490,11 +1470,20 @@
   function filterItems() {
     return itemsData.filter(item => {
       let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
-      // 現在選択されているメインタブ（currentMainType）が含まれているかを判定
-      if (!itemTypes.includes(currentMainType)) return false;
+      let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
+
+      // 【修正】ステータスに「誕生日」または「記念日」が含まれている場合は、どのタブ（MAGAZINE, PROGRAM, EVENT）を開いていても常に表示させる
+      if (itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) {
+        if (currentMainType === "MASAKI") {
+          // ココまさきタブのときは除外（お好みで変更可ですが通常タブ側に表示）
+          return false;
+        }
+      } else {
+        // 通常の予定は、選択中のメインタブが含まれている場合のみ表示
+        if (!itemTypes.includes(currentMainType)) return false;
+      }
 
       if (!currentStatusFilters.includes("すべて")) {
-        let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
         if (!currentStatusFilters.some(st => itemStatuses.includes(st))) return false;
       }
       return true;
@@ -1522,8 +1511,7 @@
     let itemStatuses = Array.isArray(item.status) ? item.status : [item.status];
     let itemTypes = Array.isArray(item.type) ? item.type : [item.type];
 
-    // MAGAZINE カテゴリが含まれている場合に管理ステータスボタンを表示
-    if (itemTypes.includes("MAGAZINE")) {
+    if (itemTypes.includes("MAGAZINE") || itemStatuses.includes("誕生日") || itemStatuses.includes("記念日")) {
       let checkedCount = (item.reservations || []).filter(r => r.checked).length;
       let purchaseText = checkedCount > 0 ? `✓ 完了/済 (${checkedCount})` : "○ 管理ステータス";
       let purchaseClass = checkedCount > 0 ? "purchase-status-badge done" : "purchase-status-badge";
